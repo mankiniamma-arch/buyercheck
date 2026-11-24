@@ -4,19 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ff2e93" />
-  <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Journey Funnel for All 50 US States + D.C." />
-  <title>BuyerCheck — CarDesk US | Pre-Buy Risk & VIN Funnel</title>
+  <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Funnel for All 50 US States + D.C." />
+  <title>BuyerCheck — CarDesk US | Used Car Red-Flag, VIN & NHTSA Funnel</title>
   <link rel="manifest" href="./manifest.json" />
   <style>
     :root {
       --bg-dark: #07060c;
-      --bg-card: rgba(18, 15, 31, 0.88);
-      --bg-card-soft: rgba(27, 22, 45, 0.72);
+      --bg-card: rgba(18, 15, 31, 0.9);
+      --bg-card-soft: rgba(28, 23, 47, 0.78);
       --neon-pink: #ff2e93;
       --neon-cyan: #00f0ff;
       --neon-violet: #9d4edd;
       --neon-amber: #ffb703;
       --neon-green: #00f59b;
+      --neon-red: #ff4d6d;
       --text-main: #f7f7ff;
       --text-muted: #a6a3c2;
       --border-glow: rgba(255, 46, 147, 0.35);
@@ -24,18 +25,14 @@
       --radius-md: 14px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
       background:
-        radial-gradient(circle at 12% 10%, rgba(255, 46, 147, 0.22), transparent 36%),
-        radial-gradient(circle at 88% 14%, rgba(0, 240, 255, 0.18), transparent 38%),
-        radial-gradient(circle at 50% 85%, rgba(157, 78, 221, 0.18), transparent 45%),
+        radial-gradient(circle at 10% 8%, rgba(255, 46, 147, 0.22), transparent 36%),
+        radial-gradient(circle at 90% 12%, rgba(0, 240, 255, 0.18), transparent 38%),
+        radial-gradient(circle at 50% 88%, rgba(157, 78, 221, 0.18), transparent 45%),
         var(--bg-dark);
       color: var(--text-main);
       min-height: 100vh;
@@ -43,13 +40,12 @@
       overflow-x: hidden;
     }
 
-    /* Top PWA & Brand Bar */
     .topbar {
       position: sticky;
       top: 0;
       z-index: 50;
       backdrop-filter: blur(14px);
-      background: rgba(8, 7, 15, 0.82);
+      background: rgba(8, 7, 15, 0.86);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding: 12px 18px;
     }
@@ -64,11 +60,7 @@
       flex-wrap: wrap;
     }
 
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .brand-group { display: flex; align-items: center; gap: 12px; }
 
     .cd-logo {
       width: 42px;
@@ -79,20 +71,11 @@
       place-items: center;
       font-weight: 900;
       font-size: 1.05rem;
-      letter-spacing: 0.5px;
       color: #07060c;
-      box-shadow: 0 0 20px rgba(255, 46, 147, 0.45);
+      box-shadow: 0 0 22px rgba(255, 46, 147, 0.45);
     }
 
-    .brand-title {
-      font-weight: 800;
-      font-size: 1rem;
-      letter-spacing: 0.4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .brand-title { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .badge-neon {
       font-size: 0.68rem;
@@ -102,20 +85,13 @@
       color: var(--neon-cyan);
       border: 1px solid rgba(0, 240, 255, 0.35);
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.7px;
+      font-weight: 700;
     }
 
-    .brand-sub {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
+    .brand-sub { font-size: 0.8rem; color: var(--text-muted); }
 
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     .btn {
       border: none;
@@ -124,115 +100,72 @@
       font-weight: 700;
       font-size: 0.88rem;
       cursor: pointer;
-      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
     }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-sm { padding: 7px 11px; font-size: 0.78rem; border-radius: 9px; }
 
     .btn-install {
       background: linear-gradient(90deg, var(--neon-pink), var(--neon-violet));
       color: #fff;
       box-shadow: 0 0 18px rgba(255, 46, 147, 0.4);
     }
-
     .btn-cyan {
       background: linear-gradient(90deg, var(--neon-cyan), #3a86ff);
       color: #06070d;
       box-shadow: 0 0 16px rgba(0, 240, 255, 0.32);
     }
-
     .btn-ghost {
       background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
       border: 1px solid rgba(255, 255, 255, 0.14);
     }
 
-    .container {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 24px 18px 56px;
-    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 24px 18px 60px; }
 
-    /* Hero Section */
     .hero {
-      background: linear-gradient(145deg, rgba(255, 46, 147, 0.12), rgba(15, 13, 28, 0.92) 45%, rgba(0, 240, 255, 0.09));
+      background: linear-gradient(145deg, rgba(255, 46, 147, 0.13), rgba(15, 13, 28, 0.94) 45%, rgba(0, 240, 255, 0.1));
       border: 1px solid var(--border-glow);
       border-radius: var(--radius-lg);
-      padding: 28px 24px;
+      padding: 26px 24px;
       margin-bottom: 22px;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
     }
 
     .hero-kicker {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1.3px;
       color: var(--neon-pink);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .hero h1 {
-      font-size: clamp(1.7rem, 4vw, 2.65rem);
-      line-height: 1.15;
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
-
+    .hero h1 { font-size: clamp(1.65rem, 4vw, 2.55rem); line-height: 1.15; font-weight: 900; margin-bottom: 10px; }
     .hero h1 span {
       background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber), var(--neon-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    .hero p { color: var(--text-muted); max-width: 780px; font-size: 0.96rem; margin-bottom: 18px; }
 
-    .hero p {
-      color: var(--text-muted);
-      max-width: 780px;
-      font-size: 0.98rem;
-      margin-bottom: 20px;
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
     .metric-box {
       background: var(--bg-card-soft);
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: var(--radius-md);
       padding: 14px;
     }
+    .metric-label { font-size: 0.73rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-value { font-size: 1.45rem; font-weight: 800; margin-top: 4px; color: var(--neon-cyan); }
 
-    .metric-label {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-    }
-
-    .metric-value {
-      font-size: 1.45rem;
-      font-weight: 800;
-      margin-top: 4px;
-      color: var(--neon-cyan);
-    }
-
-    /* Profile & Journey Grid */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 1.35fr;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
+    .main-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 18px; margin-bottom: 22px; }
+    .scanner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
 
     .card {
       background: var(--bg-card);
@@ -242,93 +175,43 @@
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
+    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .card-title { font-size: 1.08rem; font-weight: 800; }
 
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    .field-group {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
+    .field-group { display: grid; gap: 12px; margin-bottom: 14px; }
+    label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
 
     input, select, textarea {
       width: 100%;
-      background: rgba(9, 8, 17, 0.9);
+      background: rgba(9, 8, 17, 0.92);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 11px 13px;
       color: var(--text-main);
       font-size: 0.92rem;
+      font-family: inherit;
       outline: none;
     }
-
+    textarea { min-height: 96px; resize: vertical; }
     input:focus, select:focus, textarea:focus {
       border-color: var(--neon-cyan);
       box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.14);
     }
 
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    /* Animated Car-Buying Journey Track */
-    .journey-track {
-      display: grid;
-      gap: 12px;
-    }
-
+    .journey-track { display: grid; gap: 10px; }
     .stage-item {
-      position: relative;
       background: var(--bg-card-soft);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-md);
-      padding: 14px 16px;
-      transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+      padding: 13px 15px;
+      transition: all 0.25s ease;
     }
-
-    .stage-item.active {
-      border-color: var(--neon-pink);
-      box-shadow: 0 0 22px rgba(255, 46, 147, 0.22);
-      transform: translateX(2px);
-    }
-
-    .stage-item.completed {
-      border-color: rgba(0, 245, 155, 0.45);
-    }
-
-    .stage-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .stage-name {
-      font-weight: 800;
-      font-size: 0.95rem;
-    }
-
+    .stage-item.active { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 46, 147, 0.22); }
+    .stage-item.completed { border-color: rgba(0, 245, 155, 0.48); }
+    .stage-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .stage-name { font-weight: 800; font-size: 0.92rem; }
     .stage-pill {
       font-size: 0.72rem;
       font-weight: 700;
@@ -337,42 +220,99 @@
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-muted);
     }
+    .stage-item.active .stage-pill { background: rgba(255, 46, 147, 0.2); color: #ff85c0; }
+    .stage-item.completed .stage-pill { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); }
 
-    .stage-item.active .stage-pill {
-      background: rgba(255, 46, 147, 0.2);
-      color: #ff85c0;
+    .progress-bar-wrap { height: 8px; width: 100%; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .progress-bar-fill { height: 100%; width: 25%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber), var(--neon-cyan)); border-radius: 999px; transition: width 0.45s ease; }
+
+    .result-panel {
+      margin-top: 14px;
+      background: rgba(11, 9, 22, 0.92);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-radius: var(--radius-md);
+      padding: 16px;
     }
-
-    .stage-item.completed .stage-pill {
-      background: rgba(0, 245, 155, 0.18);
-      color: var(--neon-green);
-    }
-
-    .progress-bar-wrap {
-      height: 7px;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.08);
+    .result-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .verdict-pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 4px 10px;
       border-radius: 999px;
-      overflow: hidden;
-      margin-top: 8px;
+      letter-spacing: 0.6px;
+    }
+    .verdict-yes { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); border: 1px solid rgba(0, 245, 155, 0.45); }
+    .verdict-caution { background: rgba(255, 183, 3, 0.18); color: var(--neon-amber); border: 1px solid rgba(255, 183, 3, 0.45); }
+    .verdict-no { background: rgba(255, 77, 109, 0.2); color: var(--neon-red); border: 1px solid rgba(255, 77, 109, 0.5); }
+
+    .risk-meter { font-size: 0.84rem; color: var(--text-muted); }
+    .result-section { margin-top: 12px; }
+    .mini-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--neon-cyan); font-weight: 800; margin-bottom: 6px; }
+
+    .flag-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      margin-bottom: 7px;
+      font-size: 0.86rem;
+    }
+    .sev-badge { font-size: 0.66rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+    .sev-high { background: rgba(255, 77, 109, 0.22); color: var(--neon-red); }
+    .sev-medium { background: rgba(255, 183, 3, 0.2); color: var(--neon-amber); }
+    .sev-low { background: rgba(0, 245, 155, 0.2); color: var(--neon-green); }
+
+    .clean-list { padding-left: 18px; font-size: 0.86rem; color: var(--text-main); display: grid; gap: 5px; }
+    .script-box {
+      padding: 10px 12px;
+      border-left: 3px solid var(--neon-pink);
+      background: rgba(255, 46, 147, 0.08);
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-style: italic;
     }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 25%;
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+    .specs-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+    .spec-chip { background: rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 8px 10px; font-size: 0.8rem; }
+    .spec-chip span { display: block; font-size: 0.7rem; color: var(--text-muted); }
+
+    .garage-card {
+      background: var(--bg-card-soft);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .garage-card.bought-glow {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 22px rgba(0, 245, 155, 0.2);
+    }
+    .garage-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .garage-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .popular-inline {
+      font-size: 0.68rem;
+      font-weight: 900;
+      padding: 3px 8px;
       border-radius: 999px;
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+      color: #07060c;
+      margin-left: 6px;
     }
 
-    /* 3-Layer Funnel Pricing Cards */
-    .funnel-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+    .victory-banner {
+      display: none;
+      margin-bottom: 16px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(0, 245, 155, 0.16), rgba(0, 240, 255, 0.14));
+      border: 1px solid rgba(0, 245, 155, 0.5);
+      font-size: 0.92rem;
     }
 
+    .funnel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
     .tier-card {
       background: var(--bg-card);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -383,12 +323,7 @@
       justify-content: space-between;
       position: relative;
     }
-
-    .tier-card.popular {
-      border-color: var(--neon-pink);
-      box-shadow: 0 0 28px rgba(255, 46, 147, 0.2);
-    }
-
+    .tier-card.popular { border-color: var(--neon-pink); box-shadow: 0 0 28px rgba(255, 46, 147, 0.2); }
     .popular-tag {
       position: absolute;
       top: -11px;
@@ -401,33 +336,10 @@
       border-radius: 999px;
       letter-spacing: 0.7px;
     }
-
-    .tier-price {
-      font-size: 2rem;
-      font-weight: 900;
-      margin: 10px 0 6px;
-    }
-
-    .tier-price span {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .tier-list {
-      list-style: none;
-      display: grid;
-      gap: 7px;
-      margin: 12px 0 18px;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-    }
-
-    .tier-list li::before {
-      content: "✦ ";
-      color: var(--neon-cyan);
-      font-weight: bold;
-    }
+    .tier-price { font-size: 2rem; font-weight: 900; margin: 10px 0 6px; }
+    .tier-price span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+    .tier-list { list-style: none; display: grid; gap: 7px; margin: 12px 0 18px; font-size: 0.88rem; color: var(--text-muted); }
+    .tier-list li::before { content: "✦ "; color: var(--neon-cyan); font-weight: bold; }
 
     .status-banner {
       margin-top: 12px;
@@ -440,7 +352,7 @@
     }
 
     .footer-note {
-      margin-top: 26px;
+      margin-top: 24px;
       padding: 16px 18px;
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.03);
@@ -450,21 +362,12 @@
     }
 
     @media (max-width: 960px) {
-      .main-grid, .funnel-grid {
-        grid-template-columns: 1fr;
-      }
-      .metrics-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      .main-grid, .scanner-grid, .funnel-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .specs-grid { grid-template-columns: 1fr; }
     }
-
     @media (max-width: 560px) {
-      .row-2 {
-        grid-template-columns: 1fr;
-      }
-      .metrics-grid {
-        grid-template-columns: 1fr;
-      }
+      .row-2, .metrics-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -493,8 +396,7 @@
       <div class="hero-kicker">All 50 US States + D.C. • Pre-Buy Mission Funnel</div>
       <h1>Spot Red Flags, Check VINs &amp; <span>Buy With Confidence</span></h1>
       <p>
-        Start with free AI listing/chat checks, shortlist top contenders, run free NHTSA safety &amp; VIN checks,
-        and track your entire used-car buying journey until deal close.
+        Screen used-car listings with 4 free daily AI checks, shortlist your top picks, verify official U.S. NHTSA safety recalls &amp; VIN specs, and track your car-buying mission to deal close.
       </p>
       <div class="metrics-grid">
         <div class="metric-box">
@@ -511,88 +413,77 @@
         </div>
         <div class="metric-box">
           <div class="metric-label">VIN Pass Credits</div>
-          <div class="metric-value" id="vinCreditsCount">0</div>
+          <div class="metric-value" id="vinCreditsCount">1</div>
         </div>
       </div>
     </section>
 
+    <div id="victoryBanner" class="victory-banner"></div>
+
+    <!-- Profile + Animated Visual Journey -->
     <section class="main-grid">
-      <!-- Gmail / Email Profile & Quick Scout Card -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Buyer Profile &amp; Auto-Save</h2>
+          <h2 class="card-title">Buyer Profile &amp; Auto-Login</h2>
           <span class="badge-neon">Gmail / Email</span>
         </div>
         <div class="field-group">
           <div>
-            <label for="buyerEmail">Gmail / Email Address (Auto-saves journey on this device)</label>
+            <label for="buyerEmail">Gmail / Email Address (Saves journey &amp; credits on this device)</label>
             <input id="buyerEmail" type="email" placeholder="buyer.name@gmail.com" />
           </div>
           <div class="row-2">
             <div>
-              <label for="usState">US State / Jurisdiction</label>
-              <select id="usState">
-                <option value="CA">California (CA)</option>
-                <option value="TX">Texas (TX)</option>
-                <option value="FL">Florida (FL)</option>
-                <option value="NY">New York (NY)</option>
-                <option value="IL">Illinois (IL)</option>
-                <option value="GA">Georgia (GA)</option>
-                <option value="NC">North Carolina (NC)</option>
-                <option value="WA">Washington (WA)</option>
-                <option value="AZ">Arizona (AZ)</option>
-                <option value="NJ">New Jersey (NJ)</option>
-                <option value="OTHER_US">Other US State / D.C.</option>
-              </select>
+              <label for="usState">US State / Jurisdiction (All 50 + D.C.)</label>
+              <select id="usState"></select>
             </div>
             <div>
               <label for="sellerType">Seller Type</label>
               <select id="sellerType">
                 <option value="Private Seller">Private Seller</option>
                 <option value="Used Car Dealer">Used Car Dealer</option>
-                <option value="Marketplace Listing">Online Marketplace</option>
+                <option value="Online Marketplace">Online Marketplace</option>
               </select>
             </div>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="saveProfileBtn" class="btn btn-cyan" type="button">Save &amp; Auto-Login Profile</button>
+            <button id="saveProfileBtn" class="btn btn-cyan" type="button">Save &amp; Auto-Login</button>
             <button id="clearProfileBtn" class="btn btn-ghost" type="button">Sign Out</button>
           </div>
         </div>
         <div id="statusBanner" class="status-banner">
-          Ready. Connect your Gmail/Email to save your car-buying journey, shortlist, and credits.
+          Ready! Save your Gmail/Email or start your first Free AI Listing Scan below.
         </div>
       </div>
 
-      <!-- Visual Car-Buying Journey Tracker -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Car-Buying Journey Tracker</h2>
+          <h2 class="card-title">Car-Buying Mission Map</h2>
           <span id="journeyPercentLabel" class="badge-neon">25% Mission</span>
         </div>
         <div class="journey-track">
           <div id="stage1Card" class="stage-item active">
             <div class="stage-top">
-              <span class="stage-name">Stage 1: Scout &amp; AI Scan (4 Free / Day)</span>
+              <span class="stage-name">Stage 1: Scout &amp; Free AI Scan (4 / Day)</span>
               <span class="stage-pill" id="stage1Pill">Active</span>
             </div>
-            <div class="brand-sub">Paste listing notes or seller chat to catch red flags &amp; shortlist contenders.</div>
+            <div class="brand-sub">Catch scam signals, hidden defects &amp; shortlist contenders.</div>
           </div>
 
           <div id="stage2Card" class="stage-item">
             <div class="stage-top">
-              <span class="stage-name">Stage 2: Shortlist &amp; VIN / NHTSA Check ($8.99 Pass)</span>
-              <span class="stage-pill" id="stage2Pill">Locked</span>
+              <span class="stage-name">Stage 2: Shortlist &amp; NHTSA VIN Check ($8.99 Pass)</span>
+              <span class="stage-pill" id="stage2Pill">1 Credit</span>
             </div>
-            <div class="brand-sub">Check VIN specs, safety recalls, crash ratings &amp; complaints on up to 5 cars.</div>
+            <div class="brand-sub">Verify real VIN specs, open safety recalls &amp; owner complaints.</div>
           </div>
 
           <div id="stage3Card" class="stage-item">
             <div class="stage-top">
-              <span class="stage-name">Stage 3: Deep History / Final Shortlist (Phase 2)</span>
-              <span class="stage-pill" id="stage3Pill">Upcoming</span>
+              <span class="stage-name">Stage 3: Deep History Showdown ($13.99 Phase 2)</span>
+              <span class="stage-pill" id="stage3Pill">Phase 2</span>
             </div>
-            <div class="brand-sub">Compare final shortlisted cars with deeper history records before paying out.</div>
+            <div class="brand-sub">Compare your final 1–2 cars with deeper title/history records.</div>
           </div>
 
           <div id="stage4Card" class="stage-item">
@@ -600,7 +491,7 @@
               <span class="stage-name">Stage 4: Deal Closed — Car Bought</span>
               <span class="stage-pill" id="stage4Pill">Goal</span>
             </div>
-            <div class="brand-sub">Mark your final car as bought and generate a shareable deal summary card.</div>
+            <div class="brand-sub">Lock your final winner &amp; share your victory summary card.</div>
           </div>
         </div>
         <div class="progress-bar-wrap">
@@ -609,32 +500,96 @@
       </div>
     </section>
 
-    <!-- 3-Layer Funnel Section -->
-    <section class="funnel-grid">
+    <!-- Live Working Scanners: Layer 1 AI + Layer 2 NHTSA VIN -->
+    <section class="scanner-grid">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Layer 1: Free AI Listing &amp; Chat Scanner</h2>
+          <span class="badge-neon">4 Free / Day</span>
+        </div>
+        <div class="field-group">
+          <div class="row-2">
+            <div>
+              <label for="carNameInput">Car Year / Make / Model</label>
+              <input id="carNameInput" type="text" placeholder="e.g. 2019 Toyota Camry SE" />
+            </div>
+            <div>
+              <label for="carPriceInput">Asking Price ($ USD)</label>
+              <input id="carPriceInput" type="number" placeholder="e.g. 16500" />
+            </div>
+          </div>
+          <div>
+            <label for="listingTextInput">Paste Seller Listing Description or Chat Messages</label>
+            <textarea id="listingTextInput" placeholder="Paste Facebook Marketplace, Craigslist, dealer text, or chat here..."></textarea>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="runAiScanBtn" class="btn btn-cyan" type="button">Run Free AI Red-Flag Scan</button>
+            <button id="loadSampleListingBtn" class="btn btn-ghost" type="button">Load Sample Listing</button>
+          </div>
+        </div>
+        <div id="aiResultBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Layer 2: Official U.S. NHTSA VIN Check</h2>
+          <span class="badge-neon">Live Govt API</span>
+        </div>
+        <div class="field-group">
+          <div>
+            <label for="vinInput">Enter 17-Character Vehicle Identification Number (VIN)</label>
+            <input id="vinInput" type="text" maxlength="17" placeholder="e.g. 1HGCV1F30JA000001" style="text-transform:uppercase; letter-spacing:1px;" />
+          </div>
+          <div class="brand-sub">
+            Pulls live <strong>NHTSA VIN Specs, Safety Recalls &amp; Owner Complaints</strong> directly from U.S. federal public databases. (Includes 1 free demo credit to test right now.)
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button id="runVinCheckBtn" class="btn btn-install" type="button">Run Official NHTSA VIN Check</button>
+            <button id="loadSampleVinBtn" class="btn btn-ghost" type="button">Try Sample VIN</button>
+          </div>
+        </div>
+        <div id="vinResultBox"></div>
+      </div>
+    </section>
+
+    <!-- Shortlist & Checked Cars Garage Board -->
+    <section class="card" style="margin-bottom:22px;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">My Garage &amp; Shortlisted Cars</h2>
+          <div class="brand-sub">Compare your checked cars, copy formatted reports, and mark your final car as Bought.</div>
+        </div>
+        <button id="copyJourneyCardBtn" class="btn btn-ghost" type="button">Share My Journey Card</button>
+      </div>
+      <div id="garageList"></div>
+    </section>
+
+    <!-- 3-Layer Pricing Funnel -->
+    <section id="pricingSection" class="funnel-grid">
       <div class="tier-card">
         <div>
           <span class="badge-neon">Layer 1 • Free Hook</span>
           <div class="tier-price">$0 <span>/ 4 scans per day</span></div>
-          <p class="brand-sub">Filter 10–15 listings fast with AI red-flag prompts &amp; buyer questions.</p>
+          <p class="brand-sub">Screen 10–15 listings quickly before spending a single dollar.</p>
           <ul class="tier-list">
-            <li>4 free AI listing/chat checks daily</li>
-            <li>Spot high-pressure or vague seller signs</li>
-            <li>Shortlist top cars into your journey</li>
+            <li>4 free AI red-flag &amp; chat scans every day</li>
+            <li>Instant seller questions &amp; walk-away script</li>
+            <li>Save shortlisted contenders to your Garage</li>
           </ul>
         </div>
-        <button id="demoFreeScanBtn" class="btn btn-ghost" type="button">Log Sample AI Scan</button>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('carNameInput').focus()">Start Free Scan Above</button>
       </div>
 
       <div class="tier-card popular">
         <div class="popular-tag">MOST POPULAR</div>
         <div>
-          <span class="badge-neon">Layer 2 • Launch Pass</span>
+          <span class="badge-neon">Layer 2 • 5-Car Hunter Pass</span>
           <div class="tier-price">$8.99 <span>/ 5-car bundle</span></div>
-          <p class="brand-sub">One-time pass for 5 shortlisted cars with free NHTSA data &amp; AI verdict.</p>
+          <p class="brand-sub">One-time payment — check 5 shortlisted VINs with zero repeat checkout hassle.</p>
           <ul class="tier-list">
-            <li>5 VIN decode + NHTSA recall/rating checks</li>
-            <li>Seller interrogation questions &amp; walk-away notes</li>
-            <li>Email copy + journey progress sync</li>
+            <li>5 live U.S. NHTSA VIN, recall &amp; complaint checks</li>
+            <li>Copy-ready formatted report for Gmail/WhatsApp</li>
+            <li>Full visual mission &amp; shortlist comparison</li>
           </ul>
         </div>
         <button id="unlockPassBtn" class="btn btn-install" type="button">Get 5-Car Pass ($8.99)</button>
@@ -642,192 +597,24 @@
 
       <div class="tier-card">
         <div>
-          <span class="badge-neon">Layer 3 • Next Phase</span>
-          <div class="tier-price">$13.99+ <span>/ final shortlist</span></div>
-          <p class="brand-sub">Built for your final 1–2 shortlisted cars with deeper history &amp; deal close.</p>
+          <span class="badge-neon">Layer 3 • Final Shortlist</span>
+          <div class="tier-price">$13.99 <span>/ deep record (Phase 2)</span></div>
+          <p class="brand-sub">Built for your final 1–2 contenders before signing the check.</p>
           <ul class="tier-list">
-            <li>Final 2-car showdown &amp; risk comparison</li>
-            <li>Paid VIN history API integration in next rollout</li>
-            <li>Deal-closed badge &amp; shareable summary</li>
+            <li>Title brand, salvage, flood &amp; odometer history API</li>
+            <li>Final 2-car showdown &amp; risk audit</li>
+            <li>Rollout planned right after Phase 1 launch</li>
           </ul>
         </div>
-        <button id="markBoughtBtn" class="btn btn-cyan" type="button">Mark Final Car Bought</button>
+        <button id="deepHistoryBtn" class="btn btn-cyan" type="button">Notify / Preview Phase 2</button>
       </div>
     </section>
 
     <footer class="footer-note">
-      <strong>Disclaimer:</strong> BuyerCheck provides self-help buyer checklists, public U.S. NHTSA vehicle data, and AI-assisted
-      analysis for informational purposes only. It is not legal advice, financial advice, or a certified mechanical or title inspection.
+      <strong>Disclaimer:</strong> BuyerCheck by CarDesk US provides self-help buyer checklists, public U.S. NHTSA vehicle data, and AI-assisted analysis for informational purposes only. It is not legal advice, financial advice, or a certified mechanical or title inspection. Always complete an independent pre-purchase inspection and verify title status with your state DMV.
     </footer>
   </main>
 
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
-      });
-    }
-
-    const STORAGE_KEY = "buyercheck_state_v1";
-    const defaultState = {
-      email: "",
-      usState: "CA",
-      sellerType: "Private Seller",
-      freeScansUsedToday: 0,
-      lastScanDate: new Date().toISOString().slice(0, 10),
-      carsChecked: 0,
-      shortlisted: 0,
-      vinCredits: 0,
-      carBought: false
-    };
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const parsed = raw ? { ...defaultState, ...JSON.parse(raw) } : { ...defaultState };
-        const today = new Date().toISOString().slice(0, 10);
-        if (parsed.lastScanDate !== today) {
-          parsed.freeScansUsedToday = 0;
-          parsed.lastScanDate = today;
-        }
-        return parsed;
-      } catch {
-        return { ...defaultState };
-      }
-    }
-
-    let state = loadState();
-    let deferredInstallPrompt = null;
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      renderUI();
-    }
-
-    function setBanner(msg) {
-      document.getElementById("statusBanner").textContent = msg;
-    }
-
-    function renderUI() {
-      document.getElementById("buyerEmail").value = state.email;
-      document.getElementById("usState").value = state.usState;
-      document.getElementById("sellerType").value = state.sellerType;
-
-      const remaining = Math.max(0, 4 - state.freeScansUsedToday);
-      document.getElementById("freeScansLeft").textContent = `${remaining} / 4`;
-      document.getElementById("carsCheckedCount").textContent = String(state.carsChecked);
-      document.getElementById("shortlistedCount").textContent = String(state.shortlisted);
-      document.getElementById("vinCreditsCount").textContent = String(state.vinCredits);
-
-      const badge = document.getElementById("profileBadge");
-      badge.textContent = state.email ? `Auto-Saved: ${state.email}` : "Guest Session";
-
-      let pct = 25;
-      const s1 = document.getElementById("stage1Card");
-      const s2 = document.getElementById("stage2Card");
-      const s3 = document.getElementById("stage3Card");
-      const s4 = document.getElementById("stage4Card");
-
-      [s1, s2, s3, s4].forEach((el) => el.classList.remove("active", "completed"));
-
-      if (state.carsChecked > 0) {
-        s1.classList.add("completed");
-        document.getElementById("stage1Pill").textContent = "Done";
-        pct = 50;
-      } else {
-        s1.classList.add("active");
-        document.getElementById("stage1Pill").textContent = "Active";
-      }
-
-      if (state.vinCredits > 0 || state.shortlisted > 0) {
-        s2.classList.add(state.vinCredits > 0 ? "completed" : "active");
-        document.getElementById("stage2Pill").textContent = state.vinCredits > 0 ? "Pass Active" : "Ready";
-        pct = Math.max(pct, 65);
-      } else {
-        document.getElementById("stage2Pill").textContent = "Locked";
-      }
-
-      if (state.shortlisted >= 2) {
-        s3.classList.add("active");
-        document.getElementById("stage3Pill").textContent = "Shortlist Ready";
-        pct = Math.max(pct, 80);
-      } else {
-        document.getElementById("stage3Pill").textContent = "Upcoming";
-      }
-
-      if (state.carBought) {
-        s4.classList.add("completed");
-        document.getElementById("stage4Pill").textContent = "Bought!";
-        pct = 100;
-      } else {
-        document.getElementById("stage4Pill").textContent = "Goal";
-      }
-
-      document.getElementById("journeyProgressBar").style.width = `${pct}%`;
-      document.getElementById("journeyPercentLabel").textContent = `${pct}% Mission`;
-    }
-
-    document.getElementById("saveProfileBtn").addEventListener("click", () => {
-      const emailInput = document.getElementById("buyerEmail").value.trim();
-      state.email = emailInput;
-      state.usState = document.getElementById("usState").value;
-      state.sellerType = document.getElementById("sellerType").value;
-      saveState();
-      setBanner(
-        emailInput
-          ? `Profile saved for ${emailInput} (${state.usState}). Auto-login enabled on this device.`
-          : `Preferences updated for ${state.usState}. Add a Gmail/Email to save your profile.`
-      );
-    });
-
-    document.getElementById("clearProfileBtn").addEventListener("click", () => {
-      state.email = "";
-      saveState();
-      setBanner("Signed out of saved email profile on this device.");
-    });
-
-    document.getElementById("demoFreeScanBtn").addEventListener("click", () => {
-      if (state.freeScansUsedToday >= 4) {
-        setBanner("Daily limit reached (4/4 free AI scans used today). Unlock the $8.99 5-Car Pass to continue.");
-        return;
-      }
-      state.freeScansUsedToday += 1;
-      state.carsChecked += 1;
-      if (state.carsChecked % 2 === 1) {
-        state.shortlisted += 1;
-      }
-      saveState();
-      setBanner(`AI scan logged (${4 - state.freeScansUsedToday} free left today). Total cars checked: ${state.carsChecked}.`);
-    });
-
-    document.getElementById("unlockPassBtn").addEventListener("click", () => {
-      state.vinCredits += 5;
-      saveState();
-      setBanner("5-Car VIN & NHTSA Pass ($8.99) credits added to your session. (Connect Dodo checkout link in Part 3.)");
-    });
-
-    document.getElementById("markBoughtBtn").addEventListener("click", () => {
-      state.carBought = true;
-      saveState();
-      setBanner("Mission Complete! Your final car is marked as Bought in your journey tracker.");
-    });
-
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-    });
-
-    document.getElementById("installBtn").addEventListener("click", async () => {
-      if (deferredInstallPrompt) {
-        deferredInstallPrompt.prompt();
-        await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-      } else {
-        setBanner("To install as an app: open browser menu and tap 'Add to Home Screen' or 'Install App'.");
-      }
-    });
-
-    renderUI();
-  </script>
+  <script src="./app.js"></script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 /* =========================================================
-   BuyerCheck — CarDesk US | Visual Funnel Core Engine (v2.0)
-   15 -> 5 -> 3 -> 1 Animated Diagram + NHTSA APIs + Google Auth
+   BuyerCheck — CarDesk US | Ultra-Clean US Engine (v2.1)
+   Compact 15->5->3->1 Roadmap + Live NHTSA APIs + Google Auth
    ========================================================= */
 
 const CONFIG = {
-  APP_VERSION: "2.0.0",
+  APP_VERSION: "2.1.0",
   DAILY_FREE_AI_LIMIT: 4,
   STAGE1_TARGET_CARS: 10,
   STAGE2_TARGET_CARS: 5,
@@ -52,7 +52,7 @@ const RED_FLAG_RULES = [
     severity: "HIGH",
     points: 30,
     title: "Major Accident / Title Brand Signal",
-    detail: "Salvage, rebuilt, or flood history sharply reduces resale value and can raise insurance rates.",
+    detail: "Salvage, rebuilt, or flood history sharply lowers resale value and can raise insurance rates.",
     question: "Do you have pre-repair photos, alignment sheets, and state inspection paperwork for this title?"
   },
   {
@@ -69,7 +69,7 @@ const RED_FLAG_RULES = [
     points: 20,
     title: "Downplayed Mechanical Issue ('Easy Fix')",
     detail: "'Cheap fix' claims often mask $1,000–$4,000 catalytic, transmission, or head-gasket repairs.",
-    question: "Can my independent mechanic run an OBD-II scan and lift inspection before we finalize price?"
+    question: "Can my independent mechanic run an OBD-II scan and lift inspection before we agree on price?"
   },
   {
     pattern: /(no test drive|no mechanics|as-is no inspection|serious buyers only no tire kickers)/i,
@@ -98,7 +98,7 @@ const RED_FLAG_RULES = [
 ];
 
 const STORAGE_KEY = "buyercheck_state_v2";
-const RING_CIRCUMFERENCE = 2 * Math.PI * 22; // 138.23
+const RING_CIRCUMFERENCE = 2 * Math.PI * 20; // 125.66 for r=20
 
 const DEFAULT_STATE = {
   email: "",
@@ -121,6 +121,7 @@ let state = loadState();
 let deferredInstallPrompt = null;
 let lastAiDraft = null;
 let lastVinDraft = null;
+let toastTimer = null;
 
 function escapeHtml(str) {
   return String(str || "")
@@ -156,16 +157,24 @@ function saveState() {
 function setBanner(msg) {
   const el = document.getElementById("statusBanner");
   if (el) el.textContent = msg;
+
+  const toast = document.getElementById("toast");
+  if (toast) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3600);
+  }
 }
 
 window.jumpToSection = function (sectionId) {
   const el = document.getElementById(sectionId);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "start" });
-  el.style.boxShadow = "0 0 32px rgba(0, 240, 255, 0.45)";
+  el.style.boxShadow = "0 0 28px rgba(0, 240, 255, 0.42)";
   setTimeout(() => {
     el.style.boxShadow = "";
-  }, 900);
+  }, 850);
 };
 
 function trackFunnelEvent(stage, detail = {}) {
@@ -221,7 +230,7 @@ function decodeJwtPayload(token) {
 function handleGoogleCredential(response) {
   const payload = decodeJwtPayload(response.credential);
   if (!payload || !payload.email) {
-    setBanner("Google sign-in could not read your email. Please try again or enter email below.");
+    setBanner("Google sign-in could not read your email. Please enter it manually below.");
     return;
   }
   state.email = payload.email;
@@ -230,7 +239,7 @@ function handleGoogleCredential(response) {
   state.authMethod = "google";
   trackFunnelEvent("stage_0_google_login");
   saveState();
-  setBanner(`Welcome ${state.name || state.email}! Signed in with Google & auto-login enabled.`);
+  setBanner(`Signed in as ${state.name || state.email}. Your progress is saved.`);
 }
 
 function initGoogleAuth() {
@@ -239,8 +248,8 @@ function initGoogleAuth() {
   if (!wrap || !hint) return;
 
   if (!CONFIG.GOOGLE_CLIENT_ID) {
-    wrap.innerHTML = `<span class="badge-neon">Google Client ID Ready to Connect</span>`;
-    hint.textContent = "Once your Google OAuth Client ID is added, the 1-Click Gmail Auto-Login button appears right here. Meanwhile, enter your Gmail on the right.";
+    wrap.innerHTML = `<span class="badge-neon">1-Click Google Login Ready</span>`;
+    hint.textContent = "Connect your Google OAuth Client ID to enable 1-click sign-in, or save your email on the right.";
     return;
   }
 
@@ -262,14 +271,14 @@ function initGoogleAuth() {
         size: "large",
         shape: "pill",
         text: "continue_with",
-        width: 280
+        width: 260
       });
 
-      hint.textContent = "Sign in with Google once — returning visits auto-login seamlessly.";
+      hint.textContent = "Sign in once — returning visits auto-login seamlessly.";
       if (!state.email) window.google.accounts.id.prompt();
     } else if (attempts > 25) {
       clearInterval(timer);
-      hint.textContent = "Google Sign-In script could not load. You can still save your Gmail directly.";
+      hint.textContent = "Google Sign-In could not load right now. You can still save your email directly.";
     }
   }, 200);
 }
@@ -282,26 +291,26 @@ function populateStates() {
 }
 
 function computeVerdict(riskScore) {
-  if (riskScore >= 45) return { code: "NO", label: "NO — HIGH RISK (WALK AWAY)", css: "verdict-no" };
-  if (riskScore >= 18) return { code: "CAUTION", label: "CAUTION — VERIFY BEFORE BUYING", css: "verdict-caution" };
-  return { code: "YES", label: "YES — LOOKS CLEAN (DO PPI & TEST DRIVE)", css: "verdict-yes" };
+  if (riskScore >= 45) return { code: "NO", label: "HIGH RISK — WALK AWAY", css: "verdict-no" };
+  if (riskScore >= 18) return { code: "CAUTION", label: "CAUTION — VERIFY FIRST", css: "verdict-caution" };
+  return { code: "YES", label: "LOOKS CLEAN — DO PPI & TEST DRIVE", css: "verdict-yes" };
 }
 
 /* =========================================================
    STEP 1: FREE AI RED-FLAG SCANNER (4/DAY)
    ========================================================= */
 function runAiListingScan() {
-  const carName = document.getElementById("carNameInput").value.trim() || "Unnamed Vehicle";
-  const price = document.getElementById("carPriceInput").value.trim();
-  const listingText = document.getElementById("listingTextInput").value.trim();
+  const carName = document.getElementById("carNameInput")?.value.trim() || "Unnamed Vehicle";
+  const price = document.getElementById("carPriceInput")?.value.trim() || "";
+  const listingText = document.getElementById("listingTextInput")?.value.trim() || "";
 
   if (!listingText) {
-    setBanner("Please paste the seller's listing description or chat message first.");
+    setBanner("Paste the seller's listing description or chat message first.");
     return;
   }
 
   if (state.freeScansUsedToday >= CONFIG.DAILY_FREE_AI_LIMIT) {
-    setBanner("Daily limit reached (4/4 free AI scans used today). Come back tomorrow for 4 fresh scans or unlock the $8.99 5-Car VIN Pass!");
+    setBanner("4/4 free scans used today. Come back tomorrow or unlock the $8.99 5-Car VIN Pass.");
     return;
   }
 
@@ -320,7 +329,7 @@ function runAiListingScan() {
       severity: "MEDIUM",
       points: 12,
       title: "Very Short / Vague Listing",
-      detail: "Sellers who hide mileage, service history, or VIN often expect buyers to miss defects.",
+      detail: "Sellers who omit mileage, service history, or VIN often expect buyers to miss defects.",
       question: "Can you share the 17-digit VIN, exact mileage, and any recent repair receipts?"
     });
     riskScore += 12;
@@ -332,17 +341,17 @@ function runAiListingScan() {
   const questions = hits.length
     ? hits.map((h) => h.question)
     : [
-        "Can you send the 17-digit VIN so I can run an NHTSA safety & recall check?",
-        "Has the car had any paintwork, accidents, or dashboard warning lights in the last 12 months?",
-        "Are you open to an independent mechanic Pre-Purchase Inspection (PPI)?"
+        "Can you send the 17-digit VIN so I can check official NHTSA recalls?",
+        "Has the car had any accidents, paintwork, or warning lights in the past year?",
+        "Are you open to an independent mechanic pre-purchase inspection (PPI)?"
       ];
 
   const walkAwayScript =
     verdict.code === "NO"
-      ? "Thanks for your time, but the risk signals on this car don't fit my checklist. I'm going to pass and look at other options."
+      ? "Thanks for your time, but the risk signals on this car don't fit my checklist. I'm going to pass."
       : verdict.code === "CAUTION"
-      ? "I'm interested, but I'll need the 17-digit VIN, title verification in your name, and a mechanic check before we agree on a price."
-      : "The listing looks reasonable so far. If the VIN check and test drive check out clean, I'm ready to discuss a fair offer.";
+      ? "I'm interested, but I'll need the 17-digit VIN, title verification in your name, and a mechanic check first."
+      : "Looks solid so far. If the VIN check and test drive come back clean, I'm ready to make a fair offer.";
 
   state.freeScansUsedToday += 1;
   state.carsChecked += 1;
@@ -368,7 +377,7 @@ function runAiListingScan() {
   renderAiResult(lastAiDraft, hits, verdict);
   trackFunnelEvent("stage_1_free_ai_scan", { carName, verdict: verdict.code, riskScore });
   saveState();
-  setBanner(`AI Scan complete for "${carName}" — Verdict: ${verdict.code}. (${CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday} free scans left today)`);
+  setBanner(`Scan done for "${carName}" (${verdict.code}). ${CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday} free scans left today.`);
 }
 
 function renderAiResult(draft, hits, verdict) {
@@ -388,7 +397,7 @@ function renderAiResult(draft, hits, verdict) {
         </div>`
         )
         .join("")
-    : `<div class="flag-row"><span class="sev-badge sev-low">CLEAN</span><div><strong>No obvious scam/defect triggers in text</strong><div class="brand-sub">Still verify the 17-digit VIN and inspect in person.</div></div></div>`;
+    : `<div class="flag-row"><span class="sev-badge sev-low">CLEAN</span><div><strong>No obvious scam or defect triggers in text</strong><div class="brand-sub">Still verify the 17-digit VIN and inspect in person.</div></div></div>`;
 
   const questionsHtml = draft.questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
 
@@ -397,29 +406,29 @@ function renderAiResult(draft, hits, verdict) {
       <div class="result-head">
         <div>
           <div class="verdict-pill ${verdict.css}">${verdict.label}</div>
-          <h3 style="margin-top:8px;">${escapeHtml(draft.name)} ${draft.price !== "N/A" ? `• $${escapeHtml(draft.price)}` : ""}</h3>
+          <h3 style="margin-top:6px; font-size:0.98rem;">${escapeHtml(draft.name)} ${draft.price !== "N/A" ? `• $${escapeHtml(draft.price)}` : ""}</h3>
         </div>
-        <div class="risk-meter">Risk Score: <strong>${draft.riskScore}/100</strong></div>
+        <div class="risk-meter">Risk: <strong>${draft.riskScore}/100</strong></div>
       </div>
 
       <div class="result-section">
-        <div class="mini-label">Detected Red Flags</div>
+        <div class="mini-label">Detected Flags</div>
         ${flagsHtml}
       </div>
 
       <div class="result-section">
-        <div class="mini-label">Ask the Seller Right Now</div>
+        <div class="mini-label">Ask the Seller</div>
         <ul class="clean-list">${questionsHtml}</ul>
       </div>
 
       <div class="result-section">
-        <div class="mini-label">Negotiation / Walk-Away Script</div>
+        <div class="mini-label">Reply Script</div>
         <div class="script-box">"${escapeHtml(draft.walkAwayScript)}"</div>
       </div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <button type="button" class="btn btn-cyan" onclick="saveCurrentAiToGarage(true)">★ Shortlist into Top 5</button>
-        <button type="button" class="btn btn-ghost" onclick="saveCurrentAiToGarage(false)">Save to History Only</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+        <button type="button" class="btn btn-cyan btn-sm" onclick="saveCurrentAiToGarage(true)">★ Shortlist (Top 5)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="saveCurrentAiToGarage(false)">Save Only</button>
       </div>
     </div>
   `;
@@ -437,29 +446,35 @@ window.saveCurrentAiToGarage = function (isShortlisted) {
   saveState();
   setBanner(
     isShortlisted
-      ? `"${lastAiDraft.name}" added to your Top 5 Shortlist! Watch Step 2 update in the visual funnel above.`
-      : `"${lastAiDraft.name}" saved to your checked cars history.`
+      ? `"${lastAiDraft.name}" added to your Top 5 Shortlist! Run its VIN in Step 2.`
+      : `"${lastAiDraft.name}" saved to My Garage.`
   );
 };
 
 /* =========================================================
-   STEP 2: OFFICIAL U.S. NHTSA VIN API (5-CAR BUNDLE STAGE)
+   STEP 2: OFFICIAL U.S. NHTSA VIN API
    ========================================================= */
 async function runVinNhtsaCheck() {
-  const vinRaw = document.getElementById("vinInput").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const vinRaw = (document.getElementById("vinInput")?.value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+
   if (vinRaw.length !== 17) {
-    setBanner("Please enter a valid 17-character VIN (letters & numbers, no spaces).");
+    setBanner("Enter a valid 17-character VIN (letters & numbers, no spaces).");
     return;
   }
 
   if (state.vinCredits <= 0) {
-    setBanner("0 VIN Pass credits left! Unlock the $8.99 5-Car VIN & Safety Pass below to continue.");
+    setBanner("0 VIN credits left. Unlock the $8.99 5-Car Pass below to keep checking VINs.");
     jumpToSection("pricingSection");
     return;
   }
 
   const box = document.getElementById("vinResultBox");
-  box.innerHTML = `<div class="status-banner">Connecting to official U.S. NHTSA databases (VIN Decoder + Recalls + Owner Complaints)...</div>`;
+  if (box) {
+    box.innerHTML = `<div class="status-banner" style="margin-top:12px;">Pulling live U.S. NHTSA VIN specs, safety recalls &amp; owner complaints...</div>`;
+  }
 
   try {
     const decodeRes = await fetch(
@@ -483,7 +498,9 @@ async function runVinNhtsaCheck() {
     const plant = [info.PlantCity, info.PlantCountry].filter(Boolean).join(", ") || "N/A";
 
     if (!year || !make || !model) {
-      box.innerHTML = `<div class="status-banner">NHTSA could not decode Make/Model/Year for VIN <strong>${escapeHtml(vinRaw)}</strong>. Double-check the 17 characters (I, O, Q are never used in VINs).</div>`;
+      if (box) {
+        box.innerHTML = `<div class="status-banner" style="margin-top:12px;">NHTSA couldn't decode Make/Model/Year for <strong>${escapeHtml(vinRaw)}</strong>. Double-check the 17 characters (I, O, Q aren't used in VINs).</div>`;
+      }
       return;
     }
 
@@ -514,7 +531,7 @@ async function runVinNhtsaCheck() {
       name: fullName,
       price: "NHTSA Verified",
       vin: vinRaw,
-      source: "NHTSA VIN & Safety Check",
+      source: "NHTSA VIN Check",
       verdict: verdict.code,
       riskScore,
       recallsCount: recalls.length,
@@ -523,14 +540,14 @@ async function runVinNhtsaCheck() {
       flags: recalls.slice(0, 3).map((r) => `Recall: ${r.Component || "Safety Component"}`),
       questions: [
         recalls.length > 0
-          ? `NHTSA lists ${recalls.length} safety recall(s) for this model year — have all recalls been completed at an authorized dealer?`
-          : "No model-year recalls listed right now — can I still verify maintenance records?",
-        "Does the VIN on the dashboard match the driver-side door jamb sticker and title?"
+          ? `NHTSA lists ${recalls.length} safety recall(s) for this model year — have all recalls been completed at a dealer?`
+          : "No model-year recalls listed — can I still review recent maintenance receipts?",
+        "Does the dashboard VIN match the driver door-jamb sticker and paper title?"
       ],
       walkAwayScript:
         recalls.length > 0
-          ? "I checked the NHTSA safety database and saw recalls on this model year. I'll need dealer proof they were fixed or a price adjustment."
-          : "The NHTSA baseline looks solid. Let's verify title ownership and take a test drive.",
+          ? "I pulled NHTSA safety records and saw recalls on this model year. I'll need dealer proof they were fixed or a price adjustment."
+          : "NHTSA records look clean. Let's verify the title in your name and schedule a test drive.",
       shortlisted: true,
       top3: false,
       createdAt: new Date().toLocaleDateString("en-US")
@@ -548,82 +565,86 @@ async function runVinNhtsaCheck() {
 
     const recallCards = recalls.length
       ? recalls
-          .slice(0, 4)
+          .slice(0, 3)
           .map(
             (r) => `
           <div class="flag-row">
             <span class="sev-badge sev-medium">RECALL</span>
             <div>
               <strong>${escapeHtml(r.Component || "Safety Recall")}</strong>
-              <div class="brand-sub">${escapeHtml((r.Summary || "").slice(0, 170))}${(r.Summary || "").length > 170 ? "..." : ""}</div>
+              <div class="brand-sub">${escapeHtml((r.Summary || "").slice(0, 155))}${(r.Summary || "").length > 155 ? "..." : ""}</div>
             </div>
           </div>`
           )
           .join("")
       : `<div class="flag-row"><span class="sev-badge sev-low">0 RECALLS</span><div><strong>No model-year safety recalls returned by NHTSA</strong></div></div>`;
 
-    box.innerHTML = `
-      <div class="result-panel">
-        <div class="result-head">
-          <div>
-            <div class="verdict-pill ${verdict.css}">${verdict.label}</div>
-            <h3 style="margin-top:8px;">${escapeHtml(fullName)} (${escapeHtml(trim)})</h3>
-            <div class="brand-sub">VIN: <strong>${escapeHtml(vinRaw)}</strong></div>
+    if (box) {
+      box.innerHTML = `
+        <div class="result-panel">
+          <div class="result-head">
+            <div>
+              <div class="verdict-pill ${verdict.css}">${verdict.label}</div>
+              <h3 style="margin-top:6px; font-size:0.98rem;">${escapeHtml(fullName)} (${escapeHtml(trim)})</h3>
+              <div class="brand-sub">VIN: <strong>${escapeHtml(vinRaw)}</strong></div>
+            </div>
+            <div class="risk-meter">Recalls: <strong>${recalls.length}</strong> • Complaints: <strong>${complaints.length}</strong></div>
           </div>
-          <div class="risk-meter">Recalls: <strong>${recalls.length}</strong> • Complaints: <strong>${complaints.length}</strong></div>
-        </div>
 
-        <div class="specs-grid">
-          <div class="spec-chip"><span>Body</span><strong>${escapeHtml(body)}</strong></div>
-          <div class="spec-chip"><span>Engine / Fuel</span><strong>${escapeHtml(engine)}</strong></div>
-          <div class="spec-chip"><span>Assembly Plant</span><strong>${escapeHtml(plant)}</strong></div>
-        </div>
+          <div class="specs-grid">
+            <div class="spec-chip"><span>Body</span><strong>${escapeHtml(body)}</strong></div>
+            <div class="spec-chip"><span>Engine</span><strong>${escapeHtml(engine)}</strong></div>
+            <div class="spec-chip"><span>Plant</span><strong>${escapeHtml(plant)}</strong></div>
+          </div>
 
-        <div class="result-section">
-          <div class="mini-label">Official U.S. NHTSA Safety Recalls (${recalls.length})</div>
-          ${recallCards}
-        </div>
+          <div class="result-section">
+            <div class="mini-label">U.S. NHTSA Safety Recalls (${recalls.length})</div>
+            ${recallCards}
+          </div>
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-          <button type="button" class="btn btn-amber btn-sm" onclick="toggleTop3('${lastVinDraft.id}')">🎯 Promote to Top 3</button>
-          <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${lastVinDraft.id}')">Copy Report</button>
-          <button type="button" class="btn btn-install btn-sm" onclick="setCorePick('${lastVinDraft.id}')">🔬 Select as 1 Core Car</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+            <button type="button" class="btn btn-amber btn-sm" onclick="toggleTop3('${lastVinDraft.id}')">🎯 Add to Top 3</button>
+            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${lastVinDraft.id}')">Copy Report</button>
+            <button type="button" class="btn btn-install btn-sm" onclick="setCorePick('${lastVinDraft.id}')">🔬 Pick as Core Car</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
 
-    setBanner(`NHTSA VIN Check saved for ${fullName}! Promote it to Top 3 or 1 Core Car in your Garage below.`);
+    setBanner(`NHTSA VIN verified for ${fullName}! Saved to My Garage.`);
   } catch {
-    box.innerHTML = `<div class="status-banner">Could not reach NHTSA right now. Please check your internet connection and try again.</div>`;
+    if (box) {
+      box.innerHTML = `<div class="status-banner" style="margin-top:12px;">Couldn't reach NHTSA right now. Check your connection and try again.</div>`;
+    }
   }
 }
 
 /* =========================================================
-   GARAGE FUNNEL PROMOTIONS (TOP 5 -> TOP 3 -> 1 CORE -> BOUGHT)
+   GARAGE SHOWDOWN (TOP 5 -> TOP 3 -> 1 CORE -> BOUGHT)
    ========================================================= */
 function buildWorldClassReportText(car) {
   const lines = [
     "==========================================",
     "CARDESK US — BUYERCHECK PRE-BUY REPORT",
     "==========================================",
-    `Buyer Profile : ${state.name ? `${state.name} (${state.email})` : state.email || "Guest Buyer"} [${state.usState}]`,
+    `Buyer         : ${state.name ? `${state.name} (${state.email})` : state.email || "Guest Buyer"} [${state.usState}]`,
     `Vehicle       : ${car.name}`,
     `VIN           : ${car.vin || "Not entered yet"}`,
     `Check Type    : ${car.source}`,
     `Verdict       : ${car.verdict} (Risk Score: ${car.riskScore}/100)`,
-    car.recallsCount !== null ? `NHTSA Recalls : ${car.recallsCount} | Owner Complaints: ${car.complaintsCount}` : "",
+    car.recallsCount !== null ? `NHTSA Data    : ${car.recallsCount} Recall(s) | ${car.complaintsCount} Owner Complaint(s)` : "",
     "",
-    "TOP FINDINGS:",
+    "KEY FINDINGS:",
     ...(car.flags && car.flags.length ? car.flags.map((f) => `• ${f}`) : ["• No major text/recall triggers flagged"]),
     "",
-    "QUESTIONS TO ASK THE SELLER:",
+    "QUESTIONS FOR THE SELLER:",
     ...(car.questions || []).map((q, i) => `${i + 1}. ${q}`),
     "",
-    "WALK-AWAY / NEGOTIATION SCRIPT:",
+    "REPLY / NEGOTIATION SCRIPT:",
     `"${car.walkAwayScript || ""}"`,
     "",
-    "Verified on buyercheck.cardeskus.com — 15→5→3→1 Used Car Buyer Funnel",
-    "Disclaimer: Self-help informational checklist, not legal advice or certified inspection."
+    "Checked with BuyerCheck by CarDesk US — https://buyercheck.cardeskus.com",
+    "Disclaimer: Self-help informational report, not legal advice or a certified inspection."
   ];
   return lines.filter((l) => l !== "").join("\n");
 }
@@ -631,12 +652,11 @@ function buildWorldClassReportText(car) {
 window.copyCarReport = async function (carId) {
   const car = state.cars.find((c) => c.id === carId);
   if (!car) return;
-  const text = buildWorldClassReportText(car);
   try {
-    await navigator.clipboard.writeText(text);
-    setBanner(`World-class report copied for "${car.name}"! Paste into Gmail, WhatsApp, or Notes.`);
+    await navigator.clipboard.writeText(buildWorldClassReportText(car));
+    setBanner(`Report copied for "${car.name}" — ready to paste into Gmail or text.`);
   } catch {
-    setBanner("Report ready — please copy manually if clipboard permission is blocked.");
+    setBanner("Clipboard blocked — copy manually from your browser.");
   }
 };
 
@@ -653,7 +673,7 @@ window.toggleTop3 = function (carId) {
   if (!car) return;
   const currentTop3 = state.cars.filter((c) => c.top3).length;
   if (!car.top3 && currentTop3 >= 3) {
-    setBanner("You already have 3 cars in your Top 3 Finalists! Remove one first to swap.");
+    setBanner("Top 3 is full. Remove one car from Top 3 before adding another.");
     return;
   }
   car.top3 = !car.top3;
@@ -670,7 +690,7 @@ window.setCorePick = function (carId) {
   state.coreCarId = carId;
   trackFunnelEvent("stage_3_core_car_selected", { carName: car.name, vin: car.vin || "" });
   saveState();
-  setBanner(`🔬 "${car.name}" locked as your 1 CORE RESEARCH CAR! Ready for final deep audit & PPI.`);
+  setBanner(`"${car.name}" selected as your 1 Core Car for deep audit & PPI!`);
 };
 
 window.markCarBought = function (carId) {
@@ -682,7 +702,7 @@ window.markCarBought = function (carId) {
   state.boughtCarId = carId;
   trackFunnelEvent("stage_4_car_bought", { carName: car.name, vin: car.vin || "" });
   saveState();
-  setBanner(`🏆 MISSION ACCOMPLISHED! "${car.name}" is marked as BOUGHT!`);
+  setBanner(`Congrats! "${car.name}" is marked as Bought.`);
 };
 
 window.removeCar = function (carId) {
@@ -697,7 +717,7 @@ function renderGarage() {
   if (!container) return;
 
   if (!state.cars.length) {
-    container.innerHTML = `<div class="status-banner">Your Garage is empty. Run a Step 1 Free AI Listing Scan or Step 2 NHTSA VIN Check above — every car you save appears here so you can narrow 5 → Top 3 → 1 Core Winner!</div>`;
+    container.innerHTML = `<div class="status-banner">No cars saved yet. Run a Free AI Scan or NHTSA VIN Check above — saved cars appear here so you can narrow Top 5 → Top 3 → 1 Winner.</div>`;
     return;
   }
 
@@ -716,9 +736,9 @@ function renderGarage() {
             <span class="verdict-pill ${verdictClass}">${escapeHtml(car.verdict)}</span>
             ${car.shortlisted ? `<span class="badge-neon" style="margin-left:5px;">★ TOP 5</span>` : ""}
             ${car.top3 ? `<span class="badge-neon badge-pink" style="margin-left:5px;">🎯 TOP 3</span>` : ""}
-            ${isCore ? `<span class="tag-inline tag-core">🔬 1 CORE PICK</span>` : ""}
-            ${isBought ? `<span class="tag-inline tag-bought">🏆 CAR BOUGHT</span>` : ""}
-            <h4 style="margin-top:8px;">${escapeHtml(car.name)}</h4>
+            ${isCore ? `<span class="tag-inline tag-core">🔬 CORE PICK</span>` : ""}
+            ${isBought ? `<span class="tag-inline tag-bought">🏆 BOUGHT</span>` : ""}
+            <h4 style="margin-top:6px; font-size:0.95rem;">${escapeHtml(car.name)}</h4>
             <div class="brand-sub">
               ${car.vin ? `VIN: ${escapeHtml(car.vin)} • ` : ""}${escapeHtml(car.source)} • ${escapeHtml(car.createdAt)}
               ${car.recallsCount !== null ? ` • Recalls: ${car.recallsCount}` : ""}
@@ -729,12 +749,10 @@ function renderGarage() {
               ${car.shortlisted ? "★ Top 5" : "+ Top 5"}
             </button>
             <button type="button" class="btn btn-ghost btn-sm" onclick="toggleTop3('${car.id}')">
-              ${car.top3 ? "🎯 In Top 3" : "+ Top 3"}
+              ${car.top3 ? "🎯 Top 3" : "+ Top 3"}
             </button>
-            <button type="button" class="btn btn-amber btn-sm" onclick="setCorePick('${car.id}')">
-              🔬 1 Core
-            </button>
-            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${car.id}')">Copy Report</button>
+            <button type="button" class="btn btn-amber btn-sm" onclick="setCorePick('${car.id}')">🔬 Core</button>
+            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${car.id}')">Copy</button>
             <button type="button" class="btn btn-install btn-sm" onclick="markCarBought('${car.id}')">🏆 Bought</button>
             <button type="button" class="btn btn-ghost btn-sm" onclick="removeCar('${car.id}')">✕</button>
           </div>
@@ -745,7 +763,7 @@ function renderGarage() {
 }
 
 /* =========================================================
-   VISUAL COMMAND FUNNEL DIAGRAM LIVE UPDATER
+   COMPACT VISUAL ROADMAP LIVE UPDATER
    ========================================================= */
 function setRingProgress(ringId, ratio) {
   const el = document.getElementById(ringId);
@@ -754,7 +772,12 @@ function setRingProgress(ringId, ratio) {
   el.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - clamped));
 }
 
-function renderVisualFunnelDiagram() {
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function renderVisualRoadmap() {
   const remainingFree = Math.max(0, CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday);
   const scannedTotal = state.carsChecked;
   const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
@@ -763,7 +786,7 @@ function renderVisualFunnelDiagram() {
   const coreCar = state.cars.find((c) => c.id === state.coreCarId) || null;
   const boughtCar = state.cars.find((c) => c.id === state.boughtCarId) || null;
 
-  // 1) Top Free AI Battery HUD
+  // 1) Daily Free Battery HUD
   const freeText = document.getElementById("freeScansLeftText");
   if (freeText) {
     freeText.textContent = `${remainingFree} / ${CONFIG.DAILY_FREE_AI_LIMIT} Left`;
@@ -776,18 +799,16 @@ function renderVisualFunnelDiagram() {
     ).join("");
   }
 
-  // 2) Stage 1 Ring & Counts (Target 10+ scans over 3-4 days)
-  const s1Ratio = Math.min(1, scannedTotal / CONFIG.STAGE1_TARGET_CARS);
-  setRingProgress("n1Ring", s1Ratio);
-  document.getElementById("n1Count").textContent = `${scannedTotal}/${CONFIG.STAGE1_TARGET_CARS}`;
-  document.getElementById("n1Sub").textContent = `${scannedTotal} Scanned`;
+  // 2) Step 1 Ring
+  setRingProgress("n1Ring", Math.min(1, scannedTotal / CONFIG.STAGE1_TARGET_CARS));
+  setText("n1Count", `${scannedTotal}/${CONFIG.STAGE1_TARGET_CARS}`);
+  setText("n1Sub", `${scannedTotal} Scanned`);
 
-  // 3) Stage 2 Ring & 5 Bundle Slots
+  // 3) Step 2 Ring & 5 Slots
   const stage2ActiveCount = Math.max(vinCheckedCount, Math.min(5, shortlistedCount));
-  const s2Ratio = Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS);
-  setRingProgress("n2Ring", s2Ratio);
-  document.getElementById("n2Count").textContent = `${vinCheckedCount}/5`;
-  document.getElementById("n2Credits").textContent = `${state.vinCredits} Credit${state.vinCredits === 1 ? "" : "s"} Left`;
+  setRingProgress("n2Ring", Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS));
+  setText("n2Count", `${vinCheckedCount}/5`);
+  setText("n2Credits", `${state.vinCredits} Credit${state.vinCredits === 1 ? "" : "s"}`);
 
   const n2Slots = document.getElementById("n2Slots");
   if (n2Slots) {
@@ -798,28 +819,23 @@ function renderVisualFunnelDiagram() {
     }).join("");
   }
 
-  // 4) Stage 3 Ring & Top 3 -> 1 Core Slots
-  const s3Progress = coreCar ? 1 : Math.min(0.85, top3Count / CONFIG.STAGE3_TARGET_TOP3);
-  setRingProgress("n3Ring", s3Progress);
-  document.getElementById("n3Count").textContent = `${top3Count}/3`;
-  document.getElementById("n3CoreLabel").textContent = coreCar
-    ? `Core: ${coreCar.name.slice(0, 18)}${coreCar.name.length > 18 ? "…" : ""}`
-    : "Core: Not Picked";
+  // 4) Step 3 Ring & 3 Slots
+  setRingProgress("n3Ring", coreCar ? 1 : Math.min(0.85, top3Count / CONFIG.STAGE3_TARGET_TOP3));
+  setText("n3Count", `${top3Count}/3`);
+  setText("n3CoreLabel", coreCar ? `Core: ${coreCar.name.slice(0, 15)}${coreCar.name.length > 15 ? "…" : ""}` : "Core: None");
 
   const n3Slots = document.getElementById("n3Slots");
   if (n3Slots) {
     n3Slots.innerHTML = Array.from({ length: 3 }, (_, i) => {
-      if (i === 0 && coreCar) return `<span class="slot-dot filled-amber" title="Core Winner"></span>`;
-      if (i < top3Count) return `<span class="slot-dot filled-pink" title="Top 3 Finalist"></span>`;
+      if (i === 0 && coreCar) return `<span class="slot-dot filled-amber" title="Core Pick"></span>`;
+      if (i < top3Count) return `<span class="slot-dot filled-pink" title="Top 3"></span>`;
       return `<span class="slot-dot"></span>`;
     }).join("");
   }
 
-  // 5) Stage 4 Victory Ring
+  // 5) Step 4 Victory Ring
   setRingProgress("n4Ring", boughtCar ? 1 : 0);
-  document.getElementById("n4CarName").textContent = boughtCar
-    ? boughtCar.name.slice(0, 20)
-    : "Waiting for Winner";
+  setText("n4CarName", boughtCar ? boughtCar.name.slice(0, 16) : "Waiting");
 
   // 6) Node Active / Completed Glow + Laser Pipes
   const n1 = document.getElementById("node1");
@@ -834,47 +850,47 @@ function renderVisualFunnelDiagram() {
   [p1, p2, p3].forEach((el) => el && el.classList.remove("lit"));
 
   if (scannedTotal > 0) {
-    n1.classList.add(shortlistedCount >= 1 || scannedTotal >= 3 ? "node-done" : "node-active");
-    document.getElementById("n1Status").textContent = scannedTotal >= 3 ? "FLOWING" : "ACTIVE";
-    p1.classList.add("lit");
+    n1?.classList.add(shortlistedCount >= 1 || scannedTotal >= 3 ? "node-done" : "node-active");
+    setText("n1Status", scannedTotal >= 3 ? "ACTIVE" : "FREE • 4/DAY");
+    p1?.classList.add("lit");
   } else {
-    n1.classList.add("node-active");
-    document.getElementById("n1Status").textContent = "START HERE";
+    n1?.classList.add("node-active");
+    setText("n1Status", "FREE • 4/DAY");
   }
 
   if (vinCheckedCount > 0) {
-    n2.classList.add(top3Count >= 1 || vinCheckedCount >= 3 ? "node-done" : "node-active");
-    document.getElementById("n2Status").textContent = `${vinCheckedCount} VIN DONE`;
-    p2.classList.add("lit");
+    n2?.classList.add(top3Count >= 1 || vinCheckedCount >= 3 ? "node-done" : "node-active");
+    setText("n2Status", `${vinCheckedCount}/5 DONE`);
+    p2?.classList.add("lit");
   } else if (shortlistedCount > 0) {
-    n2.classList.add("node-active");
-    document.getElementById("n2Status").textContent = "READY";
+    n2?.classList.add("node-active");
+    setText("n2Status", "READY");
   } else {
-    document.getElementById("n2Status").textContent = "$8.99 PASS";
+    setText("n2Status", "$8.99 PASS");
   }
 
   if (coreCar) {
-    n3.classList.add("node-done");
-    document.getElementById("n3Status").textContent = "1 CORE LOCKED";
-    p3.classList.add("lit");
+    n3?.classList.add("node-done");
+    setText("n3Status", "CORE LOCKED");
+    p3?.classList.add("lit");
   } else if (top3Count > 0) {
-    n3.classList.add("node-active");
-    document.getElementById("n3Status").textContent = `${top3Count}/3 READY`;
+    n3?.classList.add("node-active");
+    setText("n3Status", `${top3Count}/3 READY`);
   } else {
-    document.getElementById("n3Status").textContent = "AUDIT";
+    setText("n3Status", "1 CORE PICK");
   }
 
   if (boughtCar) {
-    n4.classList.add("node-done");
-    document.getElementById("n4Status").textContent = "BOUGHT!";
+    n4?.classList.add("node-done");
+    setText("n4Status", "BOUGHT!");
   } else if (coreCar) {
-    n4.classList.add("node-active");
-    document.getElementById("n4Status").textContent = "FINAL STEP";
+    n4?.classList.add("node-active");
+    setText("n4Status", "FINAL STEP");
   } else {
-    document.getElementById("n4Status").textContent = "GOAL";
+    setText("n4Status", "GOAL");
   }
 
-  // 7) Accurate Mission Progress % (Starts at 0%, grows only on real actions)
+  // 7) Progress %
   let pct = 0;
   if (scannedTotal > 0) pct += Math.min(25, Math.round((scannedTotal / 4) * 25));
   if (shortlistedCount > 0) pct += 15;
@@ -883,49 +899,35 @@ function renderVisualFunnelDiagram() {
   if (coreCar) pct += 15;
   if (boughtCar) pct = 100;
   pct = Math.min(100, pct);
+  setText("missionPctBadge", `${pct}% Done`);
 
-  document.getElementById("missionPctBadge").textContent = `${pct}% Mission`;
-
-  // 8) Narrowing Funnel Ratio Bars
-  document.getElementById("bar1Fill").style.width = `${Math.max(6, Math.min(100, (scannedTotal / 10) * 100))}%`;
-  document.getElementById("bar1Val").textContent = `${scannedTotal} cars`;
-
-  document.getElementById("bar2Fill").style.width = `${Math.max(4, Math.min(100, (Math.max(vinCheckedCount, shortlistedCount) / 5) * 100))}%`;
-  document.getElementById("bar2Val").textContent = `${Math.min(5, Math.max(vinCheckedCount, shortlistedCount))} / 5`;
-
-  document.getElementById("bar3Fill").style.width = `${Math.max(4, Math.min(100, (top3Count / 3) * 100))}%`;
-  document.getElementById("bar3Val").textContent = `${top3Count} / 3`;
-
-  document.getElementById("bar4Fill").style.width = boughtCar ? "100%" : coreCar ? "60%" : "4%";
-  document.getElementById("bar4Val").textContent = boughtCar ? "1 Bought" : coreCar ? "1 Core" : "0 / 1";
-
-  // 9) Live Mission Commander Next-Step Guidance
+  // 8) 1-Line Dynamic Next-Step Guidance
   const guideText = document.getElementById("nextActionText");
   const guideBtn = document.getElementById("nextActionBtn");
   if (guideText && guideBtn) {
     if (boughtCar) {
-      guideText.textContent = `🏆 MISSION ACCOMPLISHED! You screened ${scannedTotal} cars and closed on ${boughtCar.name}. Share your victory card!`;
-      guideBtn.textContent = "Share My Victory Card →";
+      guideText.textContent = `🏆 Deal closed on ${boughtCar.name} after screening ${scannedTotal} car(s)!`;
+      guideBtn.textContent = "Share Summary →";
       guideBtn.onclick = () => document.getElementById("copyJourneyCardBtn")?.click();
     } else if (coreCar) {
-      guideText.textContent = `1 Core Car locked (${coreCar.name}). Complete your Deep Audit & mechanic check, then mark it as Bought!`;
-      guideBtn.textContent = "Go to Garage Winner →";
+      guideText.textContent = `Core Pick locked (${coreCar.name}). Complete your mechanic check, then mark Bought.`;
+      guideBtn.textContent = "Open Garage →";
       guideBtn.onclick = () => jumpToSection("garageCard");
     } else if (vinCheckedCount > 0 || top3Count > 0) {
-      guideText.textContent = `Nice work! You have ${vinCheckedCount} VIN check(s) & ${top3Count}/3 Finalists. Pick your 1 Core Car for deep research.`;
-      guideBtn.textContent = "Pick 1 Core Car in Garage →";
+      guideText.textContent = `${vinCheckedCount} VIN(s) checked & ${top3Count}/3 finalists. Pick your 1 Core Car in Garage.`;
+      guideBtn.textContent = "Pick 1 Core Car →";
       guideBtn.onclick = () => jumpToSection("garageCard");
     } else if (shortlistedCount > 0) {
-      guideText.textContent = `You shortlisted ${shortlistedCount} car(s)! Now run their 17-digit VIN through U.S. NHTSA in Step 2 (Bundle Pass).`;
-      guideBtn.textContent = "Go to Step 2: VIN Check →";
+      guideText.textContent = `${shortlistedCount} car(s) shortlisted! Check their 17-digit VIN with official NHTSA data.`;
+      guideBtn.textContent = "Check VIN Now →";
       guideBtn.onclick = () => jumpToSection("vinScannerCard");
     } else if (scannedTotal > 0) {
-      guideText.textContent = `You scanned ${scannedTotal} listing(s) (${remainingFree}/4 free left today). Star your best picks into your Top 5 Shortlist!`;
-      guideBtn.textContent = "Continue Free Scans →";
+      guideText.textContent = `${scannedTotal} listing(s) scanned (${remainingFree}/4 free left today). Star good ones into Top 5.`;
+      guideBtn.textContent = "Scan Next Car →";
       guideBtn.onclick = () => jumpToSection("aiScannerCard");
     } else {
-      guideText.textContent = "Start with your 4 Free AI Scans today! Screen 10–15 listings over 3–4 days to filter out risky cars.";
-      guideBtn.textContent = "Start Step 1: Free AI Scan →";
+      guideText.textContent = "Paste a listing below to run your first free AI red-flag check (4/day).";
+      guideBtn.textContent = "Start Free Scan →";
       guideBtn.onclick = () => jumpToSection("aiScannerCard");
     }
   }
@@ -945,10 +947,8 @@ function renderAll() {
   const avatar = document.getElementById("profileAvatar");
   if (badge) {
     badge.textContent = state.email
-      ? state.name
-        ? `${state.name} (${state.email})`
-        : state.email
-      : "Guest Session";
+      ? state.name || state.email
+      : "Save Progress";
   }
   if (avatar) {
     if (state.picture) {
@@ -967,16 +967,16 @@ function renderAll() {
       const vinCheckedCount = state.cars.filter((c) => Boolean(c.vin)).length;
       victoryBox.style.display = "block";
       victoryBox.innerHTML = `
-        <strong>🏆 MISSION ACCOMPLISHED!</strong> You screened <strong>${state.carsChecked}</strong> listing(s),
-        shortlisted <strong>${shortlistedCount}</strong>, ran <strong>${vinCheckedCount}</strong> NHTSA VIN check(s),
-        and closed on <strong>${escapeHtml(boughtCar.name)}</strong>!
+        <strong>🏆 DEAL CLOSED!</strong> Screened <strong>${state.carsChecked}</strong> listing(s),
+        shortlisted <strong>${shortlistedCount}</strong>, verified <strong>${vinCheckedCount}</strong> VIN(s),
+        and closed on <strong>${escapeHtml(boughtCar.name)}</strong>.
       `;
     } else {
       victoryBox.style.display = "none";
     }
   }
 
-  renderVisualFunnelDiagram();
+  renderVisualRoadmap();
   renderGarage();
 }
 
@@ -991,17 +991,17 @@ document.addEventListener("DOMContentLoaded", () => {
   trackFunnelEvent("stage_0_visit");
 
   document.getElementById("saveProfileBtn")?.addEventListener("click", () => {
-    const emailInput = document.getElementById("buyerEmail").value.trim();
+    const emailInput = (document.getElementById("buyerEmail")?.value || "").trim();
     state.email = emailInput;
     if (emailInput && state.authMethod !== "google") state.authMethod = "manual_email";
-    state.usState = document.getElementById("usState").value;
-    state.sellerType = document.getElementById("sellerType").value;
+    state.usState = document.getElementById("usState")?.value || "CA";
+    state.sellerType = document.getElementById("sellerType")?.value || "Private Seller";
     trackFunnelEvent("stage_0_profile_saved");
     saveState();
     setBanner(
       emailInput
-        ? `Auto-login profile saved for ${emailInput} (${state.usState}). Your 15→5→3→1 funnel stays synced on this device.`
-        : `State updated to ${state.usState}. Enter your Gmail/Email to save your buyer profile.`
+        ? `Saved for ${emailInput} (${state.usState}). Your progress stays synced on this device.`
+        : `State updated to ${state.usState}. Add your email anytime to save your profile.`
     );
   });
 
@@ -1014,7 +1014,7 @@ document.addEventListener("DOMContentLoaded", () => {
     state.picture = "";
     state.authMethod = "guest";
     saveState();
-    setBanner("Signed out of your profile on this device.");
+    setBanner("Signed out on this device.");
   });
 
   document.getElementById("runAiScanBtn")?.addEventListener("click", runAiListingScan);
@@ -1024,14 +1024,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("carPriceInput").value = "13500";
     document.getElementById("listingTextInput").value =
       "Selling for a friend. Runs great! Check engine light is on, probably just an easy fix O2 sensor. Lost title in move so bill of sale only. Cash today only, must sell today, no test drive without cash in hand.";
-    setBanner("Sample risky listing loaded! Click 'Run Free AI Red-Flag Scan' to see the funnel react live.");
+    setBanner("Sample listing loaded — click 'Scan Listing Free' to test.");
   });
 
   document.getElementById("runVinCheckBtn")?.addEventListener("click", runVinNhtsaCheck);
 
   document.getElementById("loadSampleVinBtn")?.addEventListener("click", () => {
     document.getElementById("vinInput").value = "1HGCV1F30JA000001";
-    setBanner("Sample 17-digit Honda VIN loaded! Click 'Run Official NHTSA VIN Check' to pull live U.S. govt data.");
+    setBanner("Sample Honda VIN loaded — click 'Check VIN Now' to pull live NHTSA data.");
   });
 
   document.getElementById("unlockPassBtn")?.addEventListener("click", () => {
@@ -1041,13 +1041,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       state.vinCredits += CONFIG.PASS_CREDITS_AMOUNT;
       saveState();
-      setBanner("Demo Mode: +5 VIN & NHTSA Pass credits added! Watch Step 2 update in the funnel above.");
+      setBanner("Demo Mode: +5 VIN credits added! Connect your Dodo Payments $8.99 URL when ready.");
     }
   });
 
   document.getElementById("deepHistoryBtn")?.addEventListener("click", () => {
     trackFunnelEvent("stage_3_waitlist_clicked", { plan: "deep_history_13_99" });
-    setBanner("Stage 3 Core Deep Audit ($13.99 — Paid Title/Salvage/Odometer API) is ready for Phase 2 rollout! Your interest is logged.");
+    setBanner("Core Deep Audit ($13.99 — Title, Salvage & Odometer History) is coming in Phase 2! Request logged.");
   });
 
   document.getElementById("copyJourneyCardBtn")?.addEventListener("click", async () => {
@@ -1055,10 +1055,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const coreCar = state.cars.find((c) => c.id === state.coreCarId);
     const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
     const top3Count = state.cars.filter((c) => c.top3).length;
-    const shareText = `🚗 My 15→5→3→1 Car-Buying Funnel on BuyerCheck (CarDesk US):\n• Listings Screened: ${state.carsChecked}\n• Shortlisted (Top 5): ${shortlistedCount}\n• Finalists (Top 3): ${top3Count}\n• Core Winner: ${boughtCar ? `BOUGHT ${boughtCar.name} 🏆` : coreCar ? `Auditing ${coreCar.name} 🔬` : "In Progress"}\nCheck used cars before you buy 👉 https://buyercheck.cardeskus.com`;
+    const shareText = `🚗 My Used-Car Check on BuyerCheck (CarDesk US):\n• Screened: ${state.carsChecked} listings\n• Shortlisted: ${shortlistedCount} (Top 3: ${top3Count})\n• Result: ${boughtCar ? `BOUGHT ${boughtCar.name} 🏆` : coreCar ? `Auditing ${coreCar.name} 🔬` : "In Progress"}\nCheck before you buy 👉 https://buyercheck.cardeskus.com`;
     try {
       await navigator.clipboard.writeText(shareText);
-      setBanner("Shareable Status / Word-of-Mouth Card copied! Paste it on WhatsApp, Instagram, or X.");
+      setBanner("Summary copied! Ready to paste into WhatsApp, text, or social status.");
     } catch {
       setBanner(shareText);
     }
@@ -1075,7 +1075,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await deferredInstallPrompt.userChoice;
       deferredInstallPrompt = null;
     } else {
-      setBanner("To install BuyerCheck as an app: tap your browser menu and select 'Add to Home Screen' or 'Install App'.");
+      setBanner("To install: open your browser menu and tap 'Add to Home Screen' or 'Install App'.");
     }
   });
 });

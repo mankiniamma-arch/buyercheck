@@ -4,18 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ff2e93" />
-  <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Funnel for All 50 US States + D.C." />
-  <title>BuyerCheck — CarDesk US | Used Car Red-Flag, VIN & NHTSA Funnel</title>
+  <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Journey Funnel for All 50 US States + D.C." />
+  <title>BuyerCheck — CarDesk US | Visual Used-Car Buying Funnel</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/jpeg" href="./logo.jpeg" />
   <link rel="apple-touch-icon" href="./logo.jpeg" />
-  <!-- Google Identity Services (Real Gmail 1-Click & Auto-Login) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
-      --bg-dark: #07060c;
-      --bg-card: rgba(18, 15, 31, 0.92);
-      --bg-card-soft: rgba(28, 23, 47, 0.8);
+      --bg-dark: #06050b;
+      --bg-card: rgba(17, 14, 30, 0.92);
+      --bg-card-soft: rgba(26, 21, 46, 0.82);
       --neon-pink: #ff2e93;
       --neon-cyan: #00f0ff;
       --neon-violet: #9d4edd;
@@ -24,19 +23,20 @@
       --neon-red: #ff4d6d;
       --text-main: #f7f7ff;
       --text-muted: #a6a3c2;
-      --border-glow: rgba(255, 46, 147, 0.38);
-      --radius-lg: 20px;
+      --border-glow: rgba(255, 46, 147, 0.4);
+      --radius-lg: 22px;
       --radius-md: 14px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
       background:
-        radial-gradient(circle at 10% 8%, rgba(255, 46, 147, 0.22), transparent 36%),
-        radial-gradient(circle at 90% 12%, rgba(0, 240, 255, 0.18), transparent 38%),
-        radial-gradient(circle at 50% 88%, rgba(157, 78, 221, 0.18), transparent 45%),
+        radial-gradient(circle at 12% 6%, rgba(255, 46, 147, 0.24), transparent 34%),
+        radial-gradient(circle at 88% 10%, rgba(0, 240, 255, 0.19), transparent 36%),
+        radial-gradient(circle at 50% 85%, rgba(157, 78, 221, 0.18), transparent 45%),
         var(--bg-dark);
       color: var(--text-main);
       min-height: 100vh;
@@ -44,18 +44,19 @@
       overflow-x: hidden;
     }
 
+    /* TOPBAR */
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 50;
-      backdrop-filter: blur(14px);
-      background: rgba(8, 7, 15, 0.88);
+      z-index: 60;
+      backdrop-filter: blur(16px);
+      background: rgba(7, 6, 14, 0.88);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding: 12px 18px;
     }
 
     .topbar-inner {
-      max-width: 1180px;
+      max-width: 1220px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -71,7 +72,7 @@
       height: 48px;
       border-radius: 12px;
       object-fit: cover;
-      border: 1px solid rgba(255, 46, 147, 0.5);
+      border: 1px solid rgba(255, 46, 147, 0.55);
       box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
       background: #0d0b18;
     }
@@ -92,15 +93,33 @@
     .brand-title { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .badge-neon {
-      font-size: 0.68rem;
-      padding: 2px 8px;
+      font-size: 0.67rem;
+      padding: 2px 9px;
       border-radius: 999px;
       background: rgba(0, 240, 255, 0.14);
       color: var(--neon-cyan);
-      border: 1px solid rgba(0, 240, 255, 0.35);
+      border: 1px solid rgba(0, 240, 255, 0.38);
       text-transform: uppercase;
-      letter-spacing: 0.7px;
-      font-weight: 700;
+      letter-spacing: 0.8px;
+      font-weight: 800;
+    }
+
+    .badge-pink {
+      background: rgba(255, 46, 147, 0.16);
+      color: #ff80bf;
+      border-color: rgba(255, 46, 147, 0.45);
+    }
+
+    .badge-amber {
+      background: rgba(255, 183, 3, 0.16);
+      color: var(--neon-amber);
+      border-color: rgba(255, 183, 3, 0.45);
+    }
+
+    .badge-green {
+      background: rgba(0, 245, 155, 0.16);
+      color: var(--neon-green);
+      border-color: rgba(0, 245, 155, 0.45);
     }
 
     .brand-sub { font-size: 0.8rem; color: var(--text-muted); }
@@ -111,96 +130,457 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      font-size: 0.74rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.07);
       color: var(--text-main);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .profile-avatar {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      object-fit: cover;
-      display: none;
-    }
+    .profile-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; display: none; }
 
     .btn {
       border: none;
       border-radius: 12px;
       padding: 10px 16px;
-      font-weight: 700;
-      font-size: 0.88rem;
+      font-weight: 800;
+      font-size: 0.87rem;
       cursor: pointer;
-      transition: transform 0.16s ease, box-shadow 0.16s ease;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 7px;
     }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-sm { padding: 7px 11px; font-size: 0.78rem; border-radius: 9px; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-sm { padding: 6px 10px; font-size: 0.76rem; border-radius: 9px; }
 
     .btn-install {
       background: linear-gradient(90deg, var(--neon-pink), var(--neon-violet));
       color: #fff;
-      box-shadow: 0 0 18px rgba(255, 46, 147, 0.4);
+      box-shadow: 0 0 20px rgba(255, 46, 147, 0.42);
     }
     .btn-cyan {
       background: linear-gradient(90deg, var(--neon-cyan), #3a86ff);
       color: #06070d;
-      box-shadow: 0 0 16px rgba(0, 240, 255, 0.32);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.34);
+    }
+    .btn-amber {
+      background: linear-gradient(90deg, var(--neon-amber), #ff7b00);
+      color: #07060c;
+      box-shadow: 0 0 16px rgba(255, 183, 3, 0.32);
     }
     .btn-ghost {
       background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
-    .container { max-width: 1180px; margin: 0 auto; padding: 24px 18px 60px; }
+    .container { max-width: 1220px; margin: 0 auto; padding: 22px 18px 64px; }
 
-    .hero {
-      background: linear-gradient(145deg, rgba(255, 46, 147, 0.13), rgba(15, 13, 28, 0.94) 45%, rgba(0, 240, 255, 0.1));
-      border: 1px solid var(--border-glow);
-      border-radius: var(--radius-lg);
-      padding: 26px 24px;
-      margin-bottom: 22px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+    /* =========================================================
+       WORLD-CLASS GTA-NEON VISUAL COMMAND FUNNEL DIAGRAM
+       ========================================================= */
+    .command-deck {
+      position: relative;
+      background:
+        linear-gradient(150deg, rgba(255, 46, 147, 0.14), rgba(12, 10, 24, 0.96) 42%, rgba(0, 240, 255, 0.11));
+      border: 1px solid rgba(255, 46, 147, 0.42);
+      border-radius: 26px;
+      padding: 24px 22px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.55), inset 0 0 40px rgba(157, 78, 221, 0.08);
+      overflow: hidden;
     }
 
-    .hero-kicker {
-      display: inline-block;
-      font-size: 0.74rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.3px;
-      color: var(--neon-pink);
-      margin-bottom: 8px;
+    .command-deck::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
     }
 
-    .hero h1 { font-size: clamp(1.65rem, 4vw, 2.55rem); line-height: 1.15; font-weight: 900; margin-bottom: 10px; }
-    .hero h1 span {
+    .deck-top {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .deck-title-block h1 {
+      font-size: clamp(1.45rem, 3.3vw, 2.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-top: 6px;
+    }
+
+    .deck-title-block h1 span {
       background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber), var(--neon-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .hero p { color: var(--text-muted); max-width: 780px; font-size: 0.96rem; margin-bottom: 18px; }
 
-    .metrics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-    .metric-box {
-      background: var(--bg-card-soft);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: var(--radius-md);
-      padding: 14px;
+    .deck-kicker {
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--neon-pink);
     }
-    .metric-label { font-size: 0.73rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .metric-value { font-size: 1.45rem; font-weight: 800; margin-top: 4px; color: var(--neon-cyan); }
 
-    .main-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 18px; margin-bottom: 22px; }
-    .scanner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+    /* Free Scan Energy Battery HUD */
+    .energy-hud {
+      background: rgba(8, 7, 17, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      border-radius: 16px;
+      padding: 12px 16px;
+      min-width: 265px;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.14);
+    }
+
+    .energy-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .energy-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--neon-cyan);
+    }
+
+    .battery-pips {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .pip {
+      height: 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .pip.charged {
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+      border-color: rgba(0, 245, 155, 0.7);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.65);
+    }
+
+    /* Interactive 4-Node Flowchart Pipeline */
+    .pipeline-flow {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr 44px 1fr 44px 1fr;
+      align-items: stretch;
+      gap: 0;
+      margin-bottom: 18px;
+    }
+
+    .pipe-node {
+      position: relative;
+      background: rgba(15, 12, 28, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 18px;
+      padding: 16px 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.22s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .pipe-node:hover {
+      transform: translateY(-4px);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 10px 28px rgba(0, 240, 255, 0.2);
+    }
+
+    .pipe-node.node-active {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 26px rgba(255, 46, 147, 0.28);
+    }
+
+    .pipe-node.node-done {
+      border-color: rgba(0, 245, 155, 0.6);
+      box-shadow: 0 0 22px rgba(0, 245, 155, 0.18);
+    }
+
+    .node-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .node-visual {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .ring-wrap {
+      position: relative;
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+    }
+
+    .ring-svg {
+      width: 56px;
+      height: 56px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 5;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 138.2;
+      stroke-dashoffset: 138.2;
+      transition: stroke-dashoffset 0.55s ease;
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .node-title {
+      font-size: 0.96rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .node-target {
+      font-size: 0.76rem;
+      color: var(--neon-cyan);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .node-desc {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .slot-dots {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .slot-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.25s ease;
+    }
+
+    .slot-dot.filled-cyan {
+      background: var(--neon-cyan);
+      box-shadow: 0 0 10px var(--neon-cyan);
+      border-color: #fff;
+    }
+
+    .slot-dot.filled-pink {
+      background: var(--neon-pink);
+      box-shadow: 0 0 10px var(--neon-pink);
+      border-color: #fff;
+    }
+
+    .slot-dot.filled-amber {
+      background: var(--neon-amber);
+      box-shadow: 0 0 10px var(--neon-amber);
+      border-color: #fff;
+    }
+
+    .slot-dot.filled-green {
+      background: var(--neon-green);
+      box-shadow: 0 0 12px var(--neon-green);
+      border-color: #fff;
+    }
+
+    .node-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Animated Laser Connectors */
+    .pipe-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .connector-line {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      border-radius: 99px;
+    }
+
+    .connector-line::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--neon-pink), var(--neon-cyan));
+      animation: laserFlow 1.8s linear infinite;
+    }
+
+    .pipe-connector.lit .connector-line {
+      background: rgba(0, 245, 155, 0.35);
+      box-shadow: 0 0 12px rgba(0, 245, 155, 0.5);
+    }
+
+    .connector-tag {
+      font-size: 0.62rem;
+      font-weight: 900;
+      color: var(--neon-amber);
+      margin-top: 6px;
+      text-align: center;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    @keyframes laserFlow {
+      0% { left: -60%; }
+      100% { left: 110%; }
+    }
+
+    /* Narrowing Funnel Visual Ratio Bar (15 -> 5 -> 3 -> 1) */
+    .funnel-ratio-strip {
+      position: relative;
+      z-index: 2;
+      background: rgba(8, 7, 17, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .ratio-bars {
+      display: grid;
+      gap: 7px;
+    }
+
+    .ratio-row {
+      display: grid;
+      grid-template-columns: 118px 1fr 56px;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .ratio-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      overflow: hidden;
+    }
+
+    .ratio-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    .mission-brief {
+      background: linear-gradient(135deg, rgba(255, 46, 147, 0.14), rgba(0, 240, 255, 0.1));
+      border: 1px solid rgba(255, 46, 147, 0.35);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mission-brief-label {
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--neon-amber);
+    }
+
+    .mission-brief-text {
+      font-size: 0.84rem;
+      color: var(--text-main);
+    }
+
+    /* MAIN CARDS & SCANNERS */
+    .victory-banner {
+      display: none;
+      margin-bottom: 18px;
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(90deg, rgba(0, 245, 155, 0.18), rgba(0, 240, 255, 0.15));
+      border: 1px solid rgba(0, 245, 155, 0.55);
+      font-size: 0.94rem;
+      box-shadow: 0 0 26px rgba(0, 245, 155, 0.2);
+    }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
 
     .card {
       background: var(--bg-card);
@@ -217,22 +597,18 @@
       padding: 12px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.04);
-      border: 1px dashed rgba(0, 240, 255, 0.3);
+      border: 1px dashed rgba(0, 240, 255, 0.32);
       margin-bottom: 12px;
     }
 
-    #googleSignInBtnWrap {
-      display: flex;
-      align-items: center;
-      min-height: 40px;
-    }
+    #googleSignInBtnWrap { display: flex; align-items: center; min-height: 40px; }
 
-    .field-group { display: grid; gap: 12px; margin-bottom: 14px; }
+    .field-group { display: grid; gap: 12px; margin-bottom: 12px; }
     label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
 
     input, select, textarea {
       width: 100%;
-      background: rgba(9, 8, 17, 0.92);
+      background: rgba(9, 8, 17, 0.94);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 11px 13px;
@@ -244,48 +620,23 @@
     textarea { min-height: 96px; resize: vertical; }
     input:focus, select:focus, textarea:focus {
       border-color: var(--neon-cyan);
-      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.14);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
     }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    .journey-track { display: grid; gap: 10px; }
-    .stage-item {
-      background: var(--bg-card-soft);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-md);
-      padding: 13px 15px;
-      transition: all 0.25s ease;
-    }
-    .stage-item.active { border-color: var(--neon-pink); box-shadow: 0 0 20px rgba(255, 46, 147, 0.22); }
-    .stage-item.completed { border-color: rgba(0, 245, 155, 0.48); }
-    .stage-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-    .stage-name { font-weight: 800; font-size: 0.92rem; }
-    .stage-pill {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-    }
-    .stage-item.active .stage-pill { background: rgba(255, 46, 147, 0.2); color: #ff85c0; }
-    .stage-item.completed .stage-pill { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); }
-
-    .progress-bar-wrap { height: 8px; width: 100%; background: rgba(255, 255, 255, 0.08); border-radius: 999px; overflow: hidden; margin-top: 12px; }
-    .progress-bar-fill { height: 100%; width: 25%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber), var(--neon-cyan)); border-radius: 999px; transition: width 0.45s ease; }
-
+    /* RESULT PANELS */
     .result-panel {
       margin-top: 14px;
-      background: rgba(11, 9, 22, 0.92);
-      border: 1px solid rgba(0, 240, 255, 0.28);
+      background: rgba(11, 9, 22, 0.94);
+      border: 1px solid rgba(0, 240, 255, 0.3);
       border-radius: var(--radius-md);
       padding: 16px;
     }
     .result-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
     .verdict-pill {
       display: inline-block;
-      font-size: 0.72rem;
+      font-size: 0.71rem;
       font-weight: 900;
       padding: 4px 10px;
       border-radius: 999px;
@@ -297,7 +648,7 @@
 
     .risk-meter { font-size: 0.84rem; color: var(--text-muted); }
     .result-section { margin-top: 12px; }
-    .mini-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--neon-cyan); font-weight: 800; margin-bottom: 6px; }
+    .mini-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--neon-cyan); font-weight: 800; margin-bottom: 6px; }
 
     .flag-row {
       display: flex;
@@ -307,20 +658,20 @@
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
       margin-bottom: 7px;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
     }
-    .sev-badge { font-size: 0.66rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+    .sev-badge { font-size: 0.65rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
     .sev-high { background: rgba(255, 77, 109, 0.22); color: var(--neon-red); }
     .sev-medium { background: rgba(255, 183, 3, 0.2); color: var(--neon-amber); }
     .sev-low { background: rgba(0, 245, 155, 0.2); color: var(--neon-green); }
 
-    .clean-list { padding-left: 18px; font-size: 0.86rem; color: var(--text-main); display: grid; gap: 5px; }
+    .clean-list { padding-left: 18px; font-size: 0.85rem; color: var(--text-main); display: grid; gap: 5px; }
     .script-box {
       padding: 10px 12px;
       border-left: 3px solid var(--neon-pink);
       background: rgba(255, 46, 147, 0.08);
       border-radius: 8px;
-      font-size: 0.86rem;
+      font-size: 0.85rem;
       font-style: italic;
     }
 
@@ -328,39 +679,31 @@
     .spec-chip { background: rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 8px 10px; font-size: 0.8rem; }
     .spec-chip span { display: block; font-size: 0.7rem; color: var(--text-muted); }
 
+    /* GARAGE BOARD */
     .garage-card {
       background: var(--bg-card-soft);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-md);
       padding: 14px 16px;
       margin-bottom: 10px;
+      transition: border-color 0.25s ease;
     }
-    .garage-card.bought-glow {
-      border-color: var(--neon-green);
-      box-shadow: 0 0 22px rgba(0, 245, 155, 0.2);
-    }
+    .garage-card.core-glow { border-color: var(--neon-amber); box-shadow: 0 0 20px rgba(255, 183, 3, 0.18); }
+    .garage-card.bought-glow { border-color: var(--neon-green); box-shadow: 0 0 24px rgba(0, 245, 155, 0.24); }
     .garage-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .garage-actions { display: flex; gap: 7px; flex-wrap: wrap; }
-    .popular-inline {
-      font-size: 0.68rem;
+    .garage-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag-inline {
+      font-size: 0.66rem;
       font-weight: 900;
       padding: 3px 8px;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
-      color: #07060c;
-      margin-left: 6px;
+      margin-left: 5px;
+      display: inline-block;
     }
+    .tag-core { background: linear-gradient(90deg, var(--neon-amber), #ff7b00); color: #07060c; }
+    .tag-bought { background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); color: #07060c; }
 
-    .victory-banner {
-      display: none;
-      margin-bottom: 16px;
-      padding: 14px 18px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(90deg, rgba(0, 245, 155, 0.16), rgba(0, 240, 255, 0.14));
-      border: 1px solid rgba(0, 245, 155, 0.5);
-      font-size: 0.92rem;
-    }
-
+    /* PRICING FUNNEL */
     .funnel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
     .tier-card {
       background: var(--bg-card);
@@ -372,7 +715,7 @@
       justify-content: space-between;
       position: relative;
     }
-    .tier-card.popular { border-color: var(--neon-pink); box-shadow: 0 0 28px rgba(255, 46, 147, 0.2); }
+    .tier-card.popular { border-color: var(--neon-pink); box-shadow: 0 0 28px rgba(255, 46, 147, 0.22); }
     .popular-tag {
       position: absolute;
       top: -11px;
@@ -387,21 +730,21 @@
     }
     .tier-price { font-size: 2rem; font-weight: 900; margin: 10px 0 6px; }
     .tier-price span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
-    .tier-list { list-style: none; display: grid; gap: 7px; margin: 12px 0 18px; font-size: 0.88rem; color: var(--text-muted); }
+    .tier-list { list-style: none; display: grid; gap: 7px; margin: 12px 0 18px; font-size: 0.87rem; color: var(--text-muted); }
     .tier-list li::before { content: "✦ "; color: var(--neon-cyan); font-weight: bold; }
 
     .status-banner {
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 10px 14px;
       border-radius: 12px;
       background: rgba(0, 240, 255, 0.08);
-      border: 1px solid rgba(0, 240, 255, 0.25);
+      border: 1px solid rgba(0, 240, 255, 0.28);
       color: var(--text-main);
-      font-size: 0.86rem;
+      font-size: 0.85rem;
     }
 
     .footer-note {
-      margin-top: 24px;
+      margin-top: 22px;
       padding: 16px 18px;
       border-radius: var(--radius-md);
       background: rgba(255, 255, 255, 0.03);
@@ -410,13 +753,41 @@
       font-size: 0.8rem;
     }
 
-    @media (max-width: 960px) {
-      .main-grid, .scanner-grid, .funnel-grid { grid-template-columns: 1fr; }
-      .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* RESPONSIVE PIPELINE (TABLET & MOBILE) */
+    @media (max-width: 1020px) {
+      .pipeline-flow {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .pipe-connector {
+        height: 36px;
+        flex-direction: row;
+        gap: 8px;
+      }
+      .connector-line {
+        width: 4px;
+        height: 100%;
+      }
+      .connector-line::after {
+        left: 0;
+        top: -60%;
+        width: 100%;
+        height: 60%;
+        background: linear-gradient(180deg, transparent, var(--neon-pink), var(--neon-cyan));
+        animation: laserFlowV 1.8s linear infinite;
+      }
+      @keyframes laserFlowV {
+        0% { top: -60%; }
+        100% { top: 110%; }
+      }
+      .connector-tag { margin-top: 0; }
+      .funnel-ratio-strip, .two-col, .funnel-grid { grid-template-columns: 1fr; }
       .specs-grid { grid-template-columns: 1fr; }
     }
+
     @media (max-width: 560px) {
-      .row-2, .metrics-grid { grid-template-columns: 1fr; }
+      .row-2 { grid-template-columns: 1fr; }
+      .ratio-row { grid-template-columns: 98px 1fr 48px; }
     }
   </style>
 </head>
@@ -450,128 +821,233 @@
   </header>
 
   <main class="container">
-    <section class="hero">
-      <div class="hero-kicker">All 50 US States + D.C. • Pre-Buy Mission Funnel</div>
-      <h1>Spot Red Flags, Check VINs &amp; <span>Buy With Confidence</span></h1>
-      <p>
-        Screen used-car listings with 4 free daily AI checks, shortlist your top picks, verify official U.S. NHTSA safety recalls &amp; VIN specs, and track your car-buying mission to deal close.
-      </p>
-      <div class="metrics-grid">
-        <div class="metric-box">
-          <div class="metric-label">Free AI Scans Left Today</div>
-          <div class="metric-value" id="freeScansLeft">4 / 4</div>
+    <!-- =========================================================
+         HERO VISUAL COMMAND FUNNEL DIAGRAM (15 -> 5 -> 3 -> 1)
+         ========================================================= -->
+    <section class="command-deck" aria-label="Car Buying Visual Mission Funnel">
+      <div class="deck-top">
+        <div class="deck-title-block">
+          <div class="deck-kicker">ALL 50 U.S. STATES + D.C. • INTERACTIVE BUYER NAVIGATION</div>
+          <h1>Your Car-Buying Funnel: <span>15 → 5 → 3 → 1 Winner</span></h1>
+          <div class="brand-sub" style="margin-top:6px;">
+            Tap any stage below to jump straight to that step. Watch your live progress fill up from daily free scans to keys in hand.
+          </div>
         </div>
-        <div class="metric-box">
-          <div class="metric-label">Cars AI-Checked</div>
-          <div class="metric-value" id="carsCheckedCount">0</div>
+
+        <!-- Daily Free Scan Battery HUD -->
+        <div class="energy-hud">
+          <div class="energy-top">
+            <span class="energy-label">⚡ Daily Free AI Scans</span>
+            <strong id="freeScansLeftText" style="font-size:0.86rem; color:var(--neon-green);">4 / 4 Left</strong>
+          </div>
+          <div id="batteryPips" class="battery-pips">
+            <div class="pip charged"></div>
+            <div class="pip charged"></div>
+            <div class="pip charged"></div>
+            <div class="pip charged"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-muted);">
+            <span>Resets daily (4/day)</span>
+            <span id="missionPctBadge" style="color:var(--neon-pink); font-weight:800;">0% Mission</span>
+          </div>
         </div>
-        <div class="metric-box">
-          <div class="metric-label">Shortlisted Cars</div>
-          <div class="metric-value" id="shortlistedCount">0</div>
+      </div>
+
+      <!-- 4-STAGE ANIMATED ORGANIZING DIAGRAM -->
+      <div class="pipeline-flow">
+        <!-- NODE 1: FREE DAILY AI SCOUT (10-15 CARS) -->
+        <div id="node1" class="pipe-node node-active" onclick="jumpToSection('aiScannerCard')">
+          <div>
+            <div class="node-head">
+              <span class="step-num">STEP 01 • FREE</span>
+              <span id="n1Status" class="badge-neon">ACTIVE</span>
+            </div>
+            <div class="node-visual">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 56 56">
+                  <circle class="ring-bg" cx="28" cy="28" r="22"></circle>
+                  <circle id="n1Ring" class="ring-fill" cx="28" cy="28" r="22" stroke="#00f0ff"></circle>
+                </svg>
+                <div id="n1Count" class="ring-center">0/10</div>
+              </div>
+              <div>
+                <div class="node-title">Scout &amp; Filter</div>
+                <div class="node-target">10–15 Listings (3–4 Days)</div>
+              </div>
+            </div>
+            <div class="node-desc">Use 4 free AI scans daily to catch scam ads &amp; narrow down ~10 contenders.</div>
+          </div>
+          <div class="node-foot">
+            <span id="n1Sub">0 Scanned</span>
+            <span style="color:var(--neon-cyan);">Scan Now →</span>
+          </div>
         </div>
-        <div class="metric-box">
-          <div class="metric-label">VIN Pass Credits</div>
-          <div class="metric-value" id="vinCreditsCount">1</div>
+
+        <!-- CONNECTOR 1 -> 2 -->
+        <div id="pipe1" class="pipe-connector">
+          <div class="connector-line"></div>
+          <div class="connector-tag">PICK 5</div>
+        </div>
+
+        <!-- NODE 2: $8.99 5-CAR BUNDLE PASS (5 -> 3) -->
+        <div id="node2" class="pipe-node" onclick="jumpToSection('vinScannerCard')">
+          <div>
+            <div class="node-head">
+              <span class="step-num">STEP 02 • $8.99</span>
+              <span id="n2Status" class="badge-neon badge-pink">PASS</span>
+            </div>
+            <div class="node-visual">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 56 56">
+                  <circle class="ring-bg" cx="28" cy="28" r="22"></circle>
+                  <circle id="n2Ring" class="ring-fill" cx="28" cy="28" r="22" stroke="#ff2e93"></circle>
+                </svg>
+                <div id="n2Count" class="ring-center">0/5</div>
+              </div>
+              <div>
+                <div class="node-title">5-Car VIN Bundle</div>
+                <div class="node-target">NHTSA Check → Cut to 3</div>
+              </div>
+            </div>
+            <div id="n2Slots" class="slot-dots">
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+            </div>
+            <div class="node-desc">Verify VIN specs, open safety recalls &amp; complaints on 5 picks.</div>
+          </div>
+          <div class="node-foot">
+            <span id="n2Credits">1 Free Demo Credit</span>
+            <span style="color:#ff80bf;">Check VIN →</span>
+          </div>
+        </div>
+
+        <!-- CONNECTOR 2 -> 3 -->
+        <div id="pipe2" class="pipe-connector">
+          <div class="connector-line"></div>
+          <div class="connector-tag">TOP 3→1</div>
+        </div>
+
+        <!-- NODE 3: TOP 3 -> 1 CORE DEEP RESEARCH ($13.99) -->
+        <div id="node3" class="pipe-node" onclick="jumpToSection('garageCard')">
+          <div>
+            <div class="node-head">
+              <span class="step-num">STEP 03 • CORE</span>
+              <span id="n3Status" class="badge-neon badge-amber">AUDIT</span>
+            </div>
+            <div class="node-visual">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 56 56">
+                  <circle class="ring-bg" cx="28" cy="28" r="22"></circle>
+                  <circle id="n3Ring" class="ring-fill" cx="28" cy="28" r="22" stroke="#ffb703"></circle>
+                </svg>
+                <div id="n3Count" class="ring-center">0/3</div>
+              </div>
+              <div>
+                <div class="node-title">Deep Core Audit</div>
+                <div class="node-target">Top 3 → Select 1 Core</div>
+              </div>
+            </div>
+            <div id="n3Slots" class="slot-dots">
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+              <span class="slot-dot"></span>
+            </div>
+            <div class="node-desc">Compare your Top 3, pick 1 Core Car &amp; run deep history + mechanic check.</div>
+          </div>
+          <div class="node-foot">
+            <span id="n3CoreLabel">Core: Not Picked</span>
+            <span style="color:var(--neon-amber);">Compare →</span>
+          </div>
+        </div>
+
+        <!-- CONNECTOR 3 -> 4 -->
+        <div id="pipe3" class="pipe-connector">
+          <div class="connector-line"></div>
+          <div class="connector-tag">CLOSE 1</div>
+        </div>
+
+        <!-- NODE 4: 1 FINAL CAR BOUGHT (VICTORY) -->
+        <div id="node4" class="pipe-node" onclick="jumpToSection('garageCard')">
+          <div>
+            <div class="node-head">
+              <span class="step-num">STEP 04 • WIN</span>
+              <span id="n4Status" class="badge-neon badge-green">GOAL</span>
+            </div>
+            <div class="node-visual">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 56 56">
+                  <circle class="ring-bg" cx="28" cy="28" r="22"></circle>
+                  <circle id="n4Ring" class="ring-fill" cx="28" cy="28" r="22" stroke="#00f59b"></circle>
+                </svg>
+                <div id="n4Count" class="ring-center">🏆</div>
+              </div>
+              <div>
+                <div class="node-title">Keys In Hand</div>
+                <div class="node-target">1 Verified Winner</div>
+              </div>
+            </div>
+            <div class="node-desc">Close with zero regret &amp; unlock your shareable Car-Buying Victory Card.</div>
+          </div>
+          <div class="node-foot">
+            <span id="n4CarName">Waiting for Winner</span>
+            <span style="color:var(--neon-green);">Finish →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE NARROWING FUNNEL BARS + DYNAMIC NEXT-STEP BRIEFING -->
+      <div class="funnel-ratio-strip">
+        <div class="ratio-bars">
+          <div class="ratio-row">
+            <span style="color:var(--neon-cyan);">1. Screened (10+)</span>
+            <div class="ratio-track"><div id="bar1Fill" class="ratio-fill" style="width:6%; background:linear-gradient(90deg,#00f0ff,#3a86ff);"></div></div>
+            <span id="bar1Val" style="text-align:right;">0 cars</span>
+          </div>
+          <div class="ratio-row">
+            <span style="color:#ff80bf;">2. Bundle Top 5</span>
+            <div class="ratio-track"><div id="bar2Fill" class="ratio-fill" style="width:4%; background:linear-gradient(90deg,#ff2e93,#9d4edd);"></div></div>
+            <span id="bar2Val" style="text-align:right;">0 / 5</span>
+          </div>
+          <div class="ratio-row">
+            <span style="color:var(--neon-amber);">3. Final Top 3</span>
+            <div class="ratio-track"><div id="bar3Fill" class="ratio-fill" style="width:4%; background:linear-gradient(90deg,#ffb703,#ff7b00);"></div></div>
+            <span id="bar3Val" style="text-align:right;">0 / 3</span>
+          </div>
+          <div class="ratio-row">
+            <span style="color:var(--neon-green);">4. 1 Core Winner</span>
+            <div class="ratio-track"><div id="bar4Fill" class="ratio-fill" style="width:4%; background:linear-gradient(90deg,#00f59b,#00f0ff);"></div></div>
+            <span id="bar4Val" style="text-align:right;">0 / 1</span>
+          </div>
+        </div>
+
+        <div class="mission-brief">
+          <div class="mission-brief-label">🎯 LIVE MISSION COMMANDER</div>
+          <div id="nextActionText" class="mission-brief-text">
+            Start with your 4 Free AI Scans today! Screen 10–15 listings over 3–4 days to filter out risky cars.
+          </div>
+          <div>
+            <button id="nextActionBtn" type="button" class="btn btn-cyan btn-sm">Start Step 1: Free AI Scan →</button>
+          </div>
         </div>
       </div>
     </section>
 
     <div id="victoryBanner" class="victory-banner"></div>
 
-    <!-- Profile (Google 1-Click Sign-In + Auto-Login) + Animated Visual Journey -->
-    <section class="main-grid">
-      <div class="card">
+    <!-- =========================================================
+         LIVE SCANNERS: STEP 1 FREE AI + STEP 2 NHTSA VIN
+         ========================================================= -->
+    <section class="two-col">
+      <div id="aiScannerCard" class="card">
         <div class="card-header">
-          <h2 class="card-title">Buyer Profile &amp; Gmail Auto-Login</h2>
-          <span class="badge-neon">Google / Email</span>
-        </div>
-
-        <div class="google-auth-box">
-          <div id="googleSignInBtnWrap"></div>
-          <div id="googleAuthHint" class="brand-sub" style="margin-top:6px;">
-            1-Click Google Sign-In activates automatically once your Google Client ID is connected.
-          </div>
-        </div>
-
-        <div class="field-group">
           <div>
-            <label for="buyerEmail">Or Enter Gmail / Email Directly (Auto-saves on this device)</label>
-            <input id="buyerEmail" type="email" placeholder="buyer.name@gmail.com" />
+            <h2 class="card-title">Step 1: Free AI Listing &amp; Chat Scanner</h2>
+            <div class="brand-sub">4 Free Scans / Day — Screen 10–15 listings over 3–4 days</div>
           </div>
-          <div class="row-2">
-            <div>
-              <label for="usState">US State / Jurisdiction (All 50 + D.C.)</label>
-              <select id="usState"></select>
-            </div>
-            <div>
-              <label for="sellerType">Seller Type</label>
-              <select id="sellerType">
-                <option value="Private Seller">Private Seller</option>
-                <option value="Used Car Dealer">Used Car Dealer</option>
-                <option value="Online Marketplace">Online Marketplace</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="saveProfileBtn" class="btn btn-cyan" type="button">Save &amp; Auto-Login</button>
-            <button id="clearProfileBtn" class="btn btn-ghost" type="button">Sign Out</button>
-          </div>
-        </div>
-        <div id="statusBanner" class="status-banner">
-          Ready! Sign in with Gmail or start your first Free AI Listing Scan below.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Car-Buying Mission Map</h2>
-          <span id="journeyPercentLabel" class="badge-neon">25% Mission</span>
-        </div>
-        <div class="journey-track">
-          <div id="stage1Card" class="stage-item active">
-            <div class="stage-top">
-              <span class="stage-name">Stage 1: Scout &amp; Free AI Scan (4 / Day)</span>
-              <span class="stage-pill" id="stage1Pill">Active</span>
-            </div>
-            <div class="brand-sub">Catch scam signals, hidden defects &amp; shortlist contenders.</div>
-          </div>
-
-          <div id="stage2Card" class="stage-item">
-            <div class="stage-top">
-              <span class="stage-name">Stage 2: Shortlist &amp; NHTSA VIN Check ($8.99 Pass)</span>
-              <span class="stage-pill" id="stage2Pill">1 Credit</span>
-            </div>
-            <div class="brand-sub">Verify real VIN specs, open safety recalls &amp; owner complaints.</div>
-          </div>
-
-          <div id="stage3Card" class="stage-item">
-            <div class="stage-top">
-              <span class="stage-name">Stage 3: Deep History Showdown ($13.99 Phase 2)</span>
-              <span class="stage-pill" id="stage3Pill">Phase 2</span>
-            </div>
-            <div class="brand-sub">Compare your final 1–2 cars with deeper title/history records.</div>
-          </div>
-
-          <div id="stage4Card" class="stage-item">
-            <div class="stage-top">
-              <span class="stage-name">Stage 4: Deal Closed — Car Bought</span>
-              <span class="stage-pill" id="stage4Pill">Goal</span>
-            </div>
-            <div class="brand-sub">Lock your final winner &amp; share your victory summary card.</div>
-          </div>
-        </div>
-        <div class="progress-bar-wrap">
-          <div id="journeyProgressBar" class="progress-bar-fill"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Live Working Scanners: Layer 1 AI + Layer 2 NHTSA VIN -->
-    <section class="scanner-grid">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Layer 1: Free AI Listing &amp; Chat Scanner</h2>
-          <span class="badge-neon">4 Free / Day</span>
+          <span class="badge-neon">FREE HOOK</span>
         </div>
         <div class="field-group">
           <div class="row-2">
@@ -596,10 +1072,13 @@
         <div id="aiResultBox"></div>
       </div>
 
-      <div class="card">
+      <div id="vinScannerCard" class="card">
         <div class="card-header">
-          <h2 class="card-title">Layer 2: Official U.S. NHTSA VIN Check</h2>
-          <span class="badge-neon">Live Govt API</span>
+          <div>
+            <h2 class="card-title">Step 2: 5-Car VIN &amp; U.S. NHTSA Check</h2>
+            <div class="brand-sub">Verify your shortlisted 5 cars → narrow down to Top 3</div>
+          </div>
+          <span class="badge-neon badge-pink">LIVE NHTSA API</span>
         </div>
         <div class="field-group">
           <div>
@@ -607,7 +1086,7 @@
             <input id="vinInput" type="text" maxlength="17" placeholder="e.g. 1HGCV1F30JA000001" style="text-transform:uppercase; letter-spacing:1px;" />
           </div>
           <div class="brand-sub">
-            Pulls live <strong>NHTSA VIN Specs, Safety Recalls &amp; Owner Complaints</strong> directly from U.S. federal public databases. (Includes 1 free demo credit to test right now.)
+            Pulls live <strong>U.S. Federal NHTSA VIN Specs, Safety Recalls &amp; Owner Complaints</strong>. (Includes 1 free demo credit so you can test immediately.)
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button id="runVinCheckBtn" class="btn btn-install" type="button">Run Official NHTSA VIN Check</button>
@@ -618,44 +1097,94 @@
       </div>
     </section>
 
-    <!-- Shortlist & Checked Cars Garage Board -->
-    <section class="card" style="margin-bottom:22px;">
+    <!-- =========================================================
+         GARAGE SHORTLIST & 5 -> 3 -> 1 CORE SHOWDOWN BOARD
+         ========================================================= -->
+    <section id="garageCard" class="card" style="margin-bottom:22px;">
       <div class="card-header">
         <div>
-          <h2 class="card-title">My Garage &amp; Shortlisted Cars</h2>
-          <div class="brand-sub">Compare your checked cars, copy formatted reports, and mark your final car as Bought.</div>
+          <h2 class="card-title">Step 3 &amp; 4: My Garage Showdown (5 → Top 3 → 1 Core Winner)</h2>
+          <div class="brand-sub">Promote your best cars stage-by-stage — watch the visual funnel diagram above update live!</div>
         </div>
         <button id="copyJourneyCardBtn" class="btn btn-ghost" type="button">Share My Journey Card</button>
       </div>
       <div id="garageList"></div>
     </section>
 
-    <!-- 3-Layer Pricing Funnel -->
+    <!-- =========================================================
+         PROFILE AUTO-LOGIN & 3-LAYER PRICING FUNNEL
+         ========================================================= -->
+    <section class="two-col" style="grid-template-columns: 1fr;">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Buyer Profile &amp; Gmail Auto-Login</h2>
+          <span class="badge-neon">Saves Your Multi-Day Journey</span>
+        </div>
+        <div class="two-col" style="margin-bottom:0;">
+          <div>
+            <div class="google-auth-box">
+              <div id="googleSignInBtnWrap"></div>
+              <div id="googleAuthHint" class="brand-sub" style="margin-top:6px;">
+                1-Click Google Sign-In activates automatically once your Google Client ID is connected.
+              </div>
+            </div>
+            <div id="statusBanner" class="status-banner">
+              Ready! Your multi-day car-buying funnel saves automatically on this device.
+            </div>
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <div>
+              <label for="buyerEmail">Gmail / Email Address</label>
+              <input id="buyerEmail" type="email" placeholder="buyer.name@gmail.com" />
+            </div>
+            <div class="row-2">
+              <div>
+                <label for="usState">US State (All 50 + D.C.)</label>
+                <select id="usState"></select>
+              </div>
+              <div>
+                <label for="sellerType">Seller Type</label>
+                <select id="sellerType">
+                  <option value="Private Seller">Private Seller</option>
+                  <option value="Used Car Dealer">Used Car Dealer</option>
+                  <option value="Online Marketplace">Online Marketplace</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button id="saveProfileBtn" class="btn btn-cyan" type="button">Save &amp; Auto-Login</button>
+              <button id="clearProfileBtn" class="btn btn-ghost" type="button">Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="pricingSection" class="funnel-grid">
       <div class="tier-card">
         <div>
-          <span class="badge-neon">Layer 1 • Free Hook</span>
+          <span class="badge-neon">Stage 1 • Free Hook</span>
           <div class="tier-price">$0 <span>/ 4 scans per day</span></div>
-          <p class="brand-sub">Screen 10–15 listings quickly before spending a single dollar.</p>
+          <p class="brand-sub">Screen 10–15 used-car listings over 3–4 days before spending a dollar.</p>
           <ul class="tier-list">
             <li>4 free AI red-flag &amp; chat scans every day</li>
-            <li>Instant seller questions &amp; walk-away script</li>
-            <li>Save shortlisted contenders to your Garage</li>
+            <li>Seller interrogation questions &amp; walk-away script</li>
+            <li>Shortlist your top 5 picks into your Garage</li>
           </ul>
         </div>
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('carNameInput').focus()">Start Free Scan Above</button>
+        <button type="button" class="btn btn-ghost" onclick="jumpToSection('aiScannerCard')">Use Free Scans Above</button>
       </div>
 
       <div class="tier-card popular">
         <div class="popular-tag">MOST POPULAR</div>
         <div>
-          <span class="badge-neon">Layer 2 • 5-Car Hunter Pass</span>
+          <span class="badge-neon badge-pink">Stage 2 • 5-Car Hunter Pass</span>
           <div class="tier-price">$8.99 <span>/ 5-car bundle</span></div>
-          <p class="brand-sub">One-time payment — check 5 shortlisted VINs with zero repeat checkout hassle.</p>
+          <p class="brand-sub">One-time pass to verify 5 shortlisted VINs and cut them down to your Top 3.</p>
           <ul class="tier-list">
             <li>5 live U.S. NHTSA VIN, recall &amp; complaint checks</li>
-            <li>Copy-ready formatted report for Gmail/WhatsApp</li>
-            <li>Full visual mission &amp; shortlist comparison</li>
+            <li>Formatted world-class report for Gmail / WhatsApp</li>
+            <li>Full visual funnel tracking from 5 → Top 3</li>
           </ul>
         </div>
         <button id="unlockPassBtn" class="btn btn-install" type="button">Get 5-Car Pass ($8.99)</button>
@@ -663,21 +1192,21 @@
 
       <div class="tier-card">
         <div>
-          <span class="badge-neon">Layer 3 • Final Shortlist</span>
-          <div class="tier-price">$13.99 <span>/ deep record (Phase 2)</span></div>
-          <p class="brand-sub">Built for your final 1–2 contenders before signing the check.</p>
+          <span class="badge-neon badge-amber">Stage 3 • 1 Core Deep Audit</span>
+          <div class="tier-price">$13.99 <span>/ core car (Phase 2)</span></div>
+          <p class="brand-sub">Selected your 1 Core Car from Top 3? Run deep title, flood &amp; odometer research.</p>
           <ul class="tier-list">
-            <li>Title brand, salvage, flood &amp; odometer history API</li>
-            <li>Final 2-car showdown &amp; risk audit</li>
+            <li>Deep paid VIN history API (Title/Salvage/Odometer)</li>
+            <li>Final 1-car risk audit before signing the check</li>
             <li>Rollout planned right after Phase 1 launch</li>
           </ul>
         </div>
-        <button id="deepHistoryBtn" class="btn btn-cyan" type="button">Notify / Preview Phase 2</button>
+        <button id="deepHistoryBtn" class="btn btn-amber" type="button">Preview Core Deep Audit</button>
       </div>
     </section>
 
     <footer class="footer-note">
-      <strong>Disclaimer:</strong> BuyerCheck by CarDesk US provides self-help buyer checklists, public U.S. NHTSA vehicle data, and AI-assisted analysis for informational purposes only. It is not legal advice, financial advice, or a certified mechanical or title inspection. Always complete an independent pre-purchase inspection and verify title status with your state DMV.
+      <strong>Disclaimer:</strong> BuyerCheck by CarDesk US provides self-help buyer checklists, public U.S. NHTSA vehicle data, and AI-assisted analysis for informational purposes only. It is not legal advice, financial advice, or a certified mechanical or title inspection. Always complete an independent mechanic pre-purchase inspection and verify title status with your state DMV.
     </footer>
   </main>
 

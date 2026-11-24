@@ -7,11 +7,15 @@
   <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Funnel for All 50 US States + D.C." />
   <title>BuyerCheck — CarDesk US | Used Car Red-Flag, VIN & NHTSA Funnel</title>
   <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/jpeg" href="./logo.jpeg" />
+  <link rel="apple-touch-icon" href="./logo.jpeg" />
+  <!-- Google Identity Services (Real Gmail 1-Click & Auto-Login) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
       --bg-dark: #07060c;
-      --bg-card: rgba(18, 15, 31, 0.9);
-      --bg-card-soft: rgba(28, 23, 47, 0.78);
+      --bg-card: rgba(18, 15, 31, 0.92);
+      --bg-card-soft: rgba(28, 23, 47, 0.8);
       --neon-pink: #ff2e93;
       --neon-cyan: #00f0ff;
       --neon-violet: #9d4edd;
@@ -20,7 +24,7 @@
       --neon-red: #ff4d6d;
       --text-main: #f7f7ff;
       --text-muted: #a6a3c2;
-      --border-glow: rgba(255, 46, 147, 0.35);
+      --border-glow: rgba(255, 46, 147, 0.38);
       --radius-lg: 20px;
       --radius-md: 14px;
     }
@@ -45,7 +49,7 @@
       top: 0;
       z-index: 50;
       backdrop-filter: blur(14px);
-      background: rgba(8, 7, 15, 0.86);
+      background: rgba(8, 7, 15, 0.88);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding: 12px 18px;
     }
@@ -62,12 +66,22 @@
 
     .brand-group { display: flex; align-items: center; gap: 12px; }
 
-    .cd-logo {
-      width: 42px;
-      height: 42px;
+    .cd-logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 46, 147, 0.5);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+      background: #0d0b18;
+    }
+
+    .cd-logo-fallback {
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       background: linear-gradient(135deg, var(--neon-pink), var(--neon-violet), var(--neon-cyan));
-      display: grid;
+      display: none;
       place-items: center;
       font-weight: 900;
       font-size: 1.05rem;
@@ -92,6 +106,27 @@
     .brand-sub { font-size: 0.8rem; color: var(--text-muted); }
 
     .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .profile-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .profile-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: none;
+    }
 
     .btn {
       border: none;
@@ -177,6 +212,20 @@
 
     .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .card-title { font-size: 1.08rem; font-weight: 800; }
+
+    .google-auth-box {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px dashed rgba(0, 240, 255, 0.3);
+      margin-bottom: 12px;
+    }
+
+    #googleSignInBtnWrap {
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
 
     .field-group { display: grid; gap: 12px; margin-bottom: 14px; }
     label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
@@ -375,7 +424,13 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand-group">
-        <div class="cd-logo">CD</div>
+        <img
+          src="./logo.jpeg"
+          alt="CarDesk US Logo"
+          class="cd-logo-img"
+          onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='grid';"
+        />
+        <div id="logoFallback" class="cd-logo-fallback">CD</div>
         <div>
           <div class="brand-title">
             <span>CarDesk US</span>
@@ -385,7 +440,10 @@
         </div>
       </div>
       <div class="top-actions">
-        <span id="profileBadge" class="stage-pill">Guest Session</span>
+        <span class="profile-chip">
+          <img id="profileAvatar" class="profile-avatar" alt="Profile" />
+          <span id="profileBadge">Guest Session</span>
+        </span>
         <button id="installBtn" class="btn btn-install" type="button">Install App</button>
       </div>
     </div>
@@ -420,16 +478,24 @@
 
     <div id="victoryBanner" class="victory-banner"></div>
 
-    <!-- Profile + Animated Visual Journey -->
+    <!-- Profile (Google 1-Click Sign-In + Auto-Login) + Animated Visual Journey -->
     <section class="main-grid">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Buyer Profile &amp; Auto-Login</h2>
-          <span class="badge-neon">Gmail / Email</span>
+          <h2 class="card-title">Buyer Profile &amp; Gmail Auto-Login</h2>
+          <span class="badge-neon">Google / Email</span>
         </div>
+
+        <div class="google-auth-box">
+          <div id="googleSignInBtnWrap"></div>
+          <div id="googleAuthHint" class="brand-sub" style="margin-top:6px;">
+            1-Click Google Sign-In activates automatically once your Google Client ID is connected.
+          </div>
+        </div>
+
         <div class="field-group">
           <div>
-            <label for="buyerEmail">Gmail / Email Address (Saves journey &amp; credits on this device)</label>
+            <label for="buyerEmail">Or Enter Gmail / Email Directly (Auto-saves on this device)</label>
             <input id="buyerEmail" type="email" placeholder="buyer.name@gmail.com" />
           </div>
           <div class="row-2">
@@ -452,7 +518,7 @@
           </div>
         </div>
         <div id="statusBanner" class="status-banner">
-          Ready! Save your Gmail/Email or start your first Free AI Listing Scan below.
+          Ready! Sign in with Gmail or start your first Free AI Listing Scan below.
         </div>
       </div>
 

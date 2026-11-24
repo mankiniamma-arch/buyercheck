@@ -1,15 +1,17 @@
 /* =========================================================
-   BuyerCheck — CarDesk US | Core Engine (Part-3)
-   Free NHTSA APIs + Red-Flag Scanner + Journey + Funnel Sync
+   BuyerCheck — CarDesk US | Core Engine (v1.4)
+   Google Sign-In (Client ID) + Free NHTSA APIs + AI Scanner
    ========================================================= */
 
 const CONFIG = {
-  APP_VERSION: "1.3.0",
+  APP_VERSION: "1.4.0",
   DAILY_FREE_AI_LIMIT: 4,
   PASS_CREDITS_AMOUNT: 5,
-  // Part-4 में Google Apps Script Web App URL यहाँ डालेंगे
+  // 1) Google Cloud OAuth Client ID (मिलते ही मुझे चैट में भेजें, मैं इसमें जोड़कर पूरा कोड दे दूँगा)
+  GOOGLE_CLIENT_ID: "",
+  // 2) Part-4 में Google Apps Script Web App URL यहाँ जुड़ेगा
   BACKEND_WEBHOOK_URL: "",
-  // Dodo Payments ($8.99 5-Car Pass) लिंक तैयार होने पर यहाँ डालें
+  // 3) Dodo Payments ($8.99 5-Car Pass) लिंक तैयार होने पर यहाँ जुड़ेगा
   DODO_CHECKOUT_URL: ""
 };
 
@@ -75,7 +77,7 @@ const RED_FLAG_RULES = [
     question: "Why is a standard test drive or independent mechanic check not allowed?"
   },
   {
-    pattern: /(odometer|mileage unknown|cluster replaced|tmU|not actual miles|rolled back)/i,
+    pattern: /(odometer|mileage unknown|cluster replaced|tmu|not actual miles|rolled back)/i,
     severity: "HIGH",
     points: 30,
     title: "Odometer / Mileage Discrepancy Risk",
@@ -96,12 +98,15 @@ const STORAGE_KEY = "buyercheck_state_v2";
 
 const DEFAULT_STATE = {
   email: "",
+  name: "",
+  picture: "",
+  authMethod: "guest",
   usState: "CA",
   sellerType: "Private Seller",
   freeScansUsedToday: 0,
   lastScanDate: new Date().toISOString().slice(0, 10),
   carsChecked: 0,
-  vinCredits: 1, // 1 complimentary demo credit so users/you can test live NHTSA VIN check right away
+  vinCredits: 1,
   cars: [],
   boughtCarId: null,
   funnelEvents: []
@@ -155,6 +160,8 @@ function trackFunnelEvent(stage, detail = {}) {
     timestamp: new Date().toISOString(),
     stage,
     email: state.email || "guest",
+    name: state.name || "",
+    authMethod: state.authMethod || "guest",
     usState: state.usState,
     sellerType: state.sellerType,
     carsChecked: state.carsChecked,
@@ -175,6 +182,84 @@ function trackFunnelEvent(stage, detail = {}) {
       body: JSON.stringify(eventObj)
     }).catch(() => {});
   }
+}
+
+/* =========================================================
+   GOOGLE 1-CLICK SIGN-IN & AUTO-LOGIN (GSI)
+   ========================================================= */
+function decodeJwtPayload(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
+function handleGoogleCredential(response) {
+  const payload = decodeJwtPayload(response.credential);
+  if (!payload || !payload.email) {
+    setBanner("Google sign-in could not read your email. Please try again or enter email below.", "warn");
+    return;
+  }
+  state.email = payload.email;
+  state.name = payload.name || "";
+  state.picture = payload.picture || "";
+  state.authMethod = "google";
+  trackFunnelEvent("stage_0_google_login");
+  saveState();
+  setBanner(`Welcome ${state.name || state.email}! Signed in with Google & auto-login enabled.`);
+}
+
+function initGoogleAuth() {
+  const wrap = document.getElementById("googleSignInBtnWrap");
+  const hint = document.getElementById("googleAuthHint");
+  if (!wrap || !hint) return;
+
+  if (!CONFIG.GOOGLE_CLIENT_ID) {
+    wrap.innerHTML = `<span class="badge-neon">Google Client ID Ready to Connect</span>`;
+    hint.textContent = "Once your Google OAuth Client ID is added, the official 1-Click Gmail Auto-Login button appears right here. Meanwhile, enter your Gmail below to test.";
+    return;
+  }
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      clearInterval(timer);
+      window.google.accounts.id.initialize({
+        client_id: CONFIG.GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+        auto_select: true,
+        cancel_on_tap_outside: false
+      });
+
+      wrap.innerHTML = "";
+      window.google.accounts.id.renderButton(wrap, {
+        theme: "filled_black",
+        size: "large",
+        shape: "pill",
+        text: "continue_with",
+        width: 280
+      });
+
+      hint.textContent = "Sign in with Google once — returning visits auto-login seamlessly.";
+
+      if (!state.email) {
+        window.google.accounts.id.prompt();
+      }
+    } else if (attempts > 25) {
+      clearInterval(timer);
+      hint.textContent = "Google Sign-In script could not load (check connection). You can still save your Gmail below.";
+    }
+  }, 200);
 }
 
 function populateStates() {
@@ -368,7 +453,6 @@ async function runVinNhtsaCheck() {
   box.innerHTML = `<div class="status-banner">Connecting to official U.S. NHTSA databases (VIN Decoder + Recalls + Owner Complaints)...</div>`;
 
   try {
-    // 1. Decode VIN (Free NHTSA vPIC API)
     const decodeRes = await fetch(
       `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/${encodeURIComponent(vinRaw)}?format=json`
     );
@@ -390,7 +474,6 @@ async function runVinNhtsaCheck() {
       return;
     }
 
-    // 2. Fetch Recalls & Complaints in parallel (Free NHTSA APIs)
     const [recallsRes, complaintsRes] = await Promise.all([
       fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null),
       fetch(`https://api.nhtsa.gov/complaints/complaintsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null)
@@ -402,10 +485,8 @@ async function runVinNhtsaCheck() {
     const recalls = Array.isArray(recallsData.results) ? recallsData.results : [];
     const complaints = Array.isArray(complaintsData.results) ? complaintsData.results : [];
 
-    // Deduct 1 credit
     state.vinCredits = Math.max(0, state.vinCredits - 1);
 
-    // Risk computation based on open model recalls + heavy complaints
     let riskScore = 10;
     if (recalls.length >= 4) riskScore += 30;
     else if (recalls.length >= 1) riskScore += 15;
@@ -441,7 +522,6 @@ async function runVinNhtsaCheck() {
       createdAt: new Date().toLocaleDateString("en-US")
     };
 
-    // Save automatically into Garage / Shortlist
     state.cars.unshift(lastVinDraft);
     trackFunnelEvent("stage_2_vin_nhtsa_check", {
       vin: vinRaw,
@@ -504,14 +584,14 @@ async function runVinNhtsaCheck() {
 }
 
 /* =========================================================
-   GARAGE / SHORTLIST BOARD + WORLD-CLASS EMAIL & STATUS SHARE
+   GARAGE BOARD + REPORT COPY + STATUS SHARE
    ========================================================= */
 function buildWorldClassReportText(car) {
   const lines = [
     "==========================================",
-    "CARDesk US — BUYERCHECK PRE-BUY REPORT",
+    "CARDESK US — BUYERCHECK PRE-BUY REPORT",
     "==========================================",
-    `Buyer Profile : ${state.email || "Guest Buyer"} (${state.usState})`,
+    `Buyer Profile : ${state.name ? `${state.name} (${state.email})` : state.email || "Guest Buyer"} [${state.usState}]`,
     `Vehicle       : ${car.name}`,
     `VIN           : ${car.vin || "Not entered yet"}`,
     `Check Type    : ${car.source}`,
@@ -607,9 +687,6 @@ function renderGarage() {
     .join("");
 }
 
-/* =========================================================
-   UI RENDERER & JOURNEY VISUALIZATION
-   ========================================================= */
 function renderAll() {
   const emailEl = document.getElementById("buyerEmail");
   if (emailEl && document.activeElement !== emailEl) emailEl.value = state.email;
@@ -630,7 +707,22 @@ function renderAll() {
   document.getElementById("vinCreditsCount").textContent = String(state.vinCredits);
 
   const badge = document.getElementById("profileBadge");
-  if (badge) badge.textContent = state.email ? `Auto-Saved: ${state.email}` : "Guest Session";
+  const avatar = document.getElementById("profileAvatar");
+  if (badge) {
+    badge.textContent = state.email
+      ? state.name
+        ? `${state.name} (${state.email})`
+        : state.email
+      : "Guest Session";
+  }
+  if (avatar) {
+    if (state.picture) {
+      avatar.src = state.picture;
+      avatar.style.display = "inline-block";
+    } else {
+      avatar.style.display = "none";
+    }
+  }
 
   let pct = 25;
   const s1 = document.getElementById("stage1Card");
@@ -694,9 +786,6 @@ function renderAll() {
   renderGarage();
 }
 
-/* =========================================================
-   BOOT & EVENT LISTENERS
-   ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
@@ -704,11 +793,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   populateStates();
   renderAll();
+  initGoogleAuth();
   trackFunnelEvent("stage_0_visit");
 
   document.getElementById("saveProfileBtn")?.addEventListener("click", () => {
     const emailInput = document.getElementById("buyerEmail").value.trim();
     state.email = emailInput;
+    if (emailInput && state.authMethod !== "google") state.authMethod = "manual_email";
     state.usState = document.getElementById("usState").value;
     state.sellerType = document.getElementById("sellerType").value;
     trackFunnelEvent("stage_0_profile_saved");
@@ -721,9 +812,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("clearProfileBtn")?.addEventListener("click", () => {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      window.google.accounts.id.disableAutoSelect();
+    }
     state.email = "";
+    state.name = "";
+    state.picture = "";
+    state.authMethod = "guest";
     saveState();
-    setBanner("Signed out of saved email profile on this device.");
+    setBanner("Signed out of your profile on this device.");
   });
 
   document.getElementById("runAiScanBtn")?.addEventListener("click", runAiListingScan);
@@ -750,7 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       state.vinCredits += CONFIG.PASS_CREDITS_AMOUNT;
       saveState();
-      setBanner("Demo Mode: +5 VIN & NHTSA Pass credits added! Connect your Dodo Payments $8.99 URL in CONFIG.DODO_CHECKOUT_URL when ready.");
+      setBanner("Demo Mode: +5 VIN & NHTSA Pass credits added! Connect your Dodo Payments $8.99 URL when ready.");
     }
   });
 

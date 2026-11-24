@@ -1,17 +1,20 @@
 /* =========================================================
-   BuyerCheck — CarDesk US | Core Engine (v1.4)
-   Google Sign-In (Client ID) + Free NHTSA APIs + AI Scanner
+   BuyerCheck — CarDesk US | Visual Funnel Core Engine (v2.0)
+   15 -> 5 -> 3 -> 1 Animated Diagram + NHTSA APIs + Google Auth
    ========================================================= */
 
 const CONFIG = {
-  APP_VERSION: "1.4.0",
+  APP_VERSION: "2.0.0",
   DAILY_FREE_AI_LIMIT: 4,
+  STAGE1_TARGET_CARS: 10,
+  STAGE2_TARGET_CARS: 5,
+  STAGE3_TARGET_TOP3: 3,
   PASS_CREDITS_AMOUNT: 5,
-  // 1) Google Cloud OAuth Client ID (मिलते ही मुझे चैट में भेजें, मैं इसमें जोड़कर पूरा कोड दे दूँगा)
+  // 1) Google Cloud OAuth Client ID (milte hi chat mein bhejein, main add kar dunga)
   GOOGLE_CLIENT_ID: "",
-  // 2) Part-4 में Google Apps Script Web App URL यहाँ जुड़ेगा
+  // 2) Part-4 Google Apps Script Web App URL
   BACKEND_WEBHOOK_URL: "",
-  // 3) Dodo Payments ($8.99 5-Car Pass) लिंक तैयार होने पर यहाँ जुड़ेगा
+  // 3) Dodo Payments ($8.99 5-Car Pass) checkout URL
   DODO_CHECKOUT_URL: ""
 };
 
@@ -95,6 +98,7 @@ const RED_FLAG_RULES = [
 ];
 
 const STORAGE_KEY = "buyercheck_state_v2";
+const RING_CIRCUMFERENCE = 2 * Math.PI * 22; // 138.23
 
 const DEFAULT_STATE = {
   email: "",
@@ -108,6 +112,7 @@ const DEFAULT_STATE = {
   carsChecked: 0,
   vinCredits: 1,
   cars: [],
+  coreCarId: null,
   boughtCarId: null,
   funnelEvents: []
 };
@@ -148,12 +153,20 @@ function saveState() {
   renderAll();
 }
 
-function setBanner(msg, type = "info") {
+function setBanner(msg) {
   const el = document.getElementById("statusBanner");
-  if (!el) return;
-  el.textContent = msg;
-  el.dataset.type = type;
+  if (el) el.textContent = msg;
 }
+
+window.jumpToSection = function (sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  el.style.boxShadow = "0 0 32px rgba(0, 240, 255, 0.45)";
+  setTimeout(() => {
+    el.style.boxShadow = "";
+  }, 900);
+};
 
 function trackFunnelEvent(stage, detail = {}) {
   const eventObj = {
@@ -166,6 +179,8 @@ function trackFunnelEvent(stage, detail = {}) {
     sellerType: state.sellerType,
     carsChecked: state.carsChecked,
     shortlistedCount: state.cars.filter((c) => c.shortlisted).length,
+    top3Count: state.cars.filter((c) => c.top3).length,
+    hasCorePick: Boolean(state.coreCarId),
     vinCredits: state.vinCredits,
     ...detail
   };
@@ -206,7 +221,7 @@ function decodeJwtPayload(token) {
 function handleGoogleCredential(response) {
   const payload = decodeJwtPayload(response.credential);
   if (!payload || !payload.email) {
-    setBanner("Google sign-in could not read your email. Please try again or enter email below.", "warn");
+    setBanner("Google sign-in could not read your email. Please try again or enter email below.");
     return;
   }
   state.email = payload.email;
@@ -225,7 +240,7 @@ function initGoogleAuth() {
 
   if (!CONFIG.GOOGLE_CLIENT_ID) {
     wrap.innerHTML = `<span class="badge-neon">Google Client ID Ready to Connect</span>`;
-    hint.textContent = "Once your Google OAuth Client ID is added, the official 1-Click Gmail Auto-Login button appears right here. Meanwhile, enter your Gmail below to test.";
+    hint.textContent = "Once your Google OAuth Client ID is added, the 1-Click Gmail Auto-Login button appears right here. Meanwhile, enter your Gmail on the right.";
     return;
   }
 
@@ -251,13 +266,10 @@ function initGoogleAuth() {
       });
 
       hint.textContent = "Sign in with Google once — returning visits auto-login seamlessly.";
-
-      if (!state.email) {
-        window.google.accounts.id.prompt();
-      }
+      if (!state.email) window.google.accounts.id.prompt();
     } else if (attempts > 25) {
       clearInterval(timer);
-      hint.textContent = "Google Sign-In script could not load (check connection). You can still save your Gmail below.";
+      hint.textContent = "Google Sign-In script could not load. You can still save your Gmail directly.";
     }
   }, 200);
 }
@@ -265,9 +277,7 @@ function initGoogleAuth() {
 function populateStates() {
   const sel = document.getElementById("usState");
   if (!sel) return;
-  sel.innerHTML = US_STATES.map(
-    ([code, label]) => `<option value="${code}">${label}</option>`
-  ).join("");
+  sel.innerHTML = US_STATES.map(([code, label]) => `<option value="${code}">${label}</option>`).join("");
   sel.value = state.usState || "CA";
 }
 
@@ -278,7 +288,7 @@ function computeVerdict(riskScore) {
 }
 
 /* =========================================================
-   LAYER 1: FREE AI RED-FLAG & DEAL SCANNER (4/DAY)
+   STEP 1: FREE AI RED-FLAG SCANNER (4/DAY)
    ========================================================= */
 function runAiListingScan() {
   const carName = document.getElementById("carNameInput").value.trim() || "Unnamed Vehicle";
@@ -286,12 +296,12 @@ function runAiListingScan() {
   const listingText = document.getElementById("listingTextInput").value.trim();
 
   if (!listingText) {
-    setBanner("Please paste the seller's listing description or chat message first.", "warn");
+    setBanner("Please paste the seller's listing description or chat message first.");
     return;
   }
 
   if (state.freeScansUsedToday >= CONFIG.DAILY_FREE_AI_LIMIT) {
-    setBanner("Daily limit reached (4/4 free AI scans used today). Unlock the $8.99 5-Car Pass to continue checking shortlisted VINs.", "warn");
+    setBanner("Daily limit reached (4/4 free AI scans used today). Come back tomorrow for 4 fresh scans or unlock the $8.99 5-Car VIN Pass!");
     return;
   }
 
@@ -351,6 +361,7 @@ function runAiListingScan() {
     questions,
     walkAwayScript,
     shortlisted: false,
+    top3: false,
     createdAt: new Date().toLocaleDateString("en-US")
   };
 
@@ -379,9 +390,7 @@ function renderAiResult(draft, hits, verdict) {
         .join("")
     : `<div class="flag-row"><span class="sev-badge sev-low">CLEAN</span><div><strong>No obvious scam/defect triggers in text</strong><div class="brand-sub">Still verify the 17-digit VIN and inspect in person.</div></div></div>`;
 
-  const questionsHtml = draft.questions
-    .map((q) => `<li>${escapeHtml(q)}</li>`)
-    .join("");
+  const questionsHtml = draft.questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
 
   box.innerHTML = `
     <div class="result-panel">
@@ -409,7 +418,7 @@ function renderAiResult(draft, hits, verdict) {
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <button type="button" class="btn btn-cyan" onclick="saveCurrentAiToGarage(true)">★ Shortlist Car into Journey</button>
+        <button type="button" class="btn btn-cyan" onclick="saveCurrentAiToGarage(true)">★ Shortlist into Top 5</button>
         <button type="button" class="btn btn-ghost" onclick="saveCurrentAiToGarage(false)">Save to History Only</button>
       </div>
     </div>
@@ -428,24 +437,24 @@ window.saveCurrentAiToGarage = function (isShortlisted) {
   saveState();
   setBanner(
     isShortlisted
-      ? `"${lastAiDraft.name}" added to your Shortlist! Now run its 17-digit VIN in Stage 2.`
+      ? `"${lastAiDraft.name}" added to your Top 5 Shortlist! Watch Step 2 update in the visual funnel above.`
       : `"${lastAiDraft.name}" saved to your checked cars history.`
   );
 };
 
 /* =========================================================
-   LAYER 2: FREE US GOVT NHTSA APIs (VIN + RECALLS + COMPLAINTS)
+   STEP 2: OFFICIAL U.S. NHTSA VIN API (5-CAR BUNDLE STAGE)
    ========================================================= */
 async function runVinNhtsaCheck() {
   const vinRaw = document.getElementById("vinInput").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (vinRaw.length !== 17) {
-    setBanner("Please enter a valid 17-character VIN (letters & numbers, no spaces).", "warn");
+    setBanner("Please enter a valid 17-character VIN (letters & numbers, no spaces).");
     return;
   }
 
   if (state.vinCredits <= 0) {
-    setBanner("You have 0 VIN Pass credits left. Unlock the $8.99 5-Car VIN & Safety Pass below to continue.", "warn");
-    document.getElementById("pricingSection")?.scrollIntoView({ behavior: "smooth" });
+    setBanner("0 VIN Pass credits left! Unlock the $8.99 5-Car VIN & Safety Pass below to continue.");
+    jumpToSection("pricingSection");
     return;
   }
 
@@ -464,13 +473,17 @@ async function runVinNhtsaCheck() {
     const model = info.Model || "";
     const trim = info.Trim || info.Series || "Standard";
     const body = info.BodyClass || "N/A";
-    const engine = [info.EngineCylinders ? `${info.EngineCylinders} Cyl` : "", info.DisplacementL ? `${info.DisplacementL}L` : "", info.FuelTypePrimary || ""]
+    const engine = [
+      info.EngineCylinders ? `${info.EngineCylinders} Cyl` : "",
+      info.DisplacementL ? `${info.DisplacementL}L` : "",
+      info.FuelTypePrimary || ""
+    ]
       .filter(Boolean)
       .join(" • ") || "N/A";
     const plant = [info.PlantCity, info.PlantCountry].filter(Boolean).join(", ") || "N/A";
 
     if (!year || !make || !model) {
-      box.innerHTML = `<div class="status-banner">NHTSA could not decode full Make/Model/Year for VIN <strong>${escapeHtml(vinRaw)}</strong>. Double-check the 17 characters (I, O, Q are never used in VINs).</div>`;
+      box.innerHTML = `<div class="status-banner">NHTSA could not decode Make/Model/Year for VIN <strong>${escapeHtml(vinRaw)}</strong>. Double-check the 17 characters (I, O, Q are never used in VINs).</div>`;
       return;
     }
 
@@ -519,6 +532,7 @@ async function runVinNhtsaCheck() {
           ? "I checked the NHTSA safety database and saw recalls on this model year. I'll need dealer proof they were fixed or a price adjustment."
           : "The NHTSA baseline looks solid. Let's verify title ownership and take a test drive.",
       shortlisted: true,
+      top3: false,
       createdAt: new Date().toLocaleDateString("en-US")
     };
 
@@ -570,21 +584,22 @@ async function runVinNhtsaCheck() {
           ${recallCards}
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-          <button type="button" class="btn btn-cyan" onclick="copyCarReport('${lastVinDraft.id}')">Copy World-Class Email / Share Report</button>
-          <button type="button" class="btn btn-install" onclick="markCarBought('${lastVinDraft.id}')">🏆 Mark This Car as Bought</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button type="button" class="btn btn-amber btn-sm" onclick="toggleTop3('${lastVinDraft.id}')">🎯 Promote to Top 3</button>
+          <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${lastVinDraft.id}')">Copy Report</button>
+          <button type="button" class="btn btn-install btn-sm" onclick="setCorePick('${lastVinDraft.id}')">🔬 Select as 1 Core Car</button>
         </div>
       </div>
     `;
 
-    setBanner(`NHTSA VIN Check saved for ${fullName}! Remaining VIN Pass credits: ${state.vinCredits}.`);
-  } catch (err) {
+    setBanner(`NHTSA VIN Check saved for ${fullName}! Promote it to Top 3 or 1 Core Car in your Garage below.`);
+  } catch {
     box.innerHTML = `<div class="status-banner">Could not reach NHTSA right now. Please check your internet connection and try again.</div>`;
   }
 }
 
 /* =========================================================
-   GARAGE BOARD + REPORT COPY + STATUS SHARE
+   GARAGE FUNNEL PROMOTIONS (TOP 5 -> TOP 3 -> 1 CORE -> BOUGHT)
    ========================================================= */
 function buildWorldClassReportText(car) {
   const lines = [
@@ -607,7 +622,7 @@ function buildWorldClassReportText(car) {
     "WALK-AWAY / NEGOTIATION SCRIPT:",
     `"${car.walkAwayScript || ""}"`,
     "",
-    "Verified on buyercheck.cardeskus.com — Free AI + U.S. NHTSA Buyer Funnel",
+    "Verified on buyercheck.cardeskus.com — 15→5→3→1 Used Car Buyer Funnel",
     "Disclaimer: Self-help informational checklist, not legal advice or certified inspection."
   ];
   return lines.filter((l) => l !== "").join("\n");
@@ -629,19 +644,50 @@ window.toggleShortlist = function (carId) {
   const car = state.cars.find((c) => c.id === carId);
   if (!car) return;
   car.shortlisted = !car.shortlisted;
+  if (!car.shortlisted) car.top3 = false;
   saveState();
 };
 
-window.markCarBought = function (carId) {
-  state.boughtCarId = carId;
+window.toggleTop3 = function (carId) {
   const car = state.cars.find((c) => c.id === carId);
-  trackFunnelEvent("stage_4_car_bought", { carName: car ? car.name : "Final Car", vin: car ? car.vin : "" });
+  if (!car) return;
+  const currentTop3 = state.cars.filter((c) => c.top3).length;
+  if (!car.top3 && currentTop3 >= 3) {
+    setBanner("You already have 3 cars in your Top 3 Finalists! Remove one first to swap.");
+    return;
+  }
+  car.top3 = !car.top3;
+  if (car.top3) car.shortlisted = true;
+  trackFunnelEvent("stage_3_top3_updated", { carName: car.name, inTop3: car.top3 });
   saveState();
-  setBanner(`MISSION COMPLETE! "${car ? car.name : "Your car"}" is marked as BOUGHT! Copy your shareable status card below.`);
+};
+
+window.setCorePick = function (carId) {
+  const car = state.cars.find((c) => c.id === carId);
+  if (!car) return;
+  car.shortlisted = true;
+  car.top3 = true;
+  state.coreCarId = carId;
+  trackFunnelEvent("stage_3_core_car_selected", { carName: car.name, vin: car.vin || "" });
+  saveState();
+  setBanner(`🔬 "${car.name}" locked as your 1 CORE RESEARCH CAR! Ready for final deep audit & PPI.`);
+};
+
+window.markCarBought = function (carId) {
+  const car = state.cars.find((c) => c.id === carId);
+  if (!car) return;
+  car.shortlisted = true;
+  car.top3 = true;
+  state.coreCarId = carId;
+  state.boughtCarId = carId;
+  trackFunnelEvent("stage_4_car_bought", { carName: car.name, vin: car.vin || "" });
+  saveState();
+  setBanner(`🏆 MISSION ACCOMPLISHED! "${car.name}" is marked as BOUGHT!`);
 };
 
 window.removeCar = function (carId) {
   state.cars = state.cars.filter((c) => c.id !== carId);
+  if (state.coreCarId === carId) state.coreCarId = null;
   if (state.boughtCarId === carId) state.boughtCarId = null;
   saveState();
 };
@@ -651,22 +697,27 @@ function renderGarage() {
   if (!container) return;
 
   if (!state.cars.length) {
-    container.innerHTML = `<div class="status-banner">No cars logged yet. Run a Free AI Listing Scan or a 17-digit NHTSA VIN Check above to start building your visual shortlist!</div>`;
+    container.innerHTML = `<div class="status-banner">Your Garage is empty. Run a Step 1 Free AI Listing Scan or Step 2 NHTSA VIN Check above — every car you save appears here so you can narrow 5 → Top 3 → 1 Core Winner!</div>`;
     return;
   }
 
   container.innerHTML = state.cars
     .map((car) => {
+      const isCore = state.coreCarId === car.id;
       const isBought = state.boughtCarId === car.id;
       const verdictClass =
         car.verdict === "NO" ? "verdict-no" : car.verdict === "CAUTION" ? "verdict-caution" : "verdict-yes";
+      const cardGlow = isBought ? "bought-glow" : isCore ? "core-glow" : "";
+
       return `
-      <div class="garage-card ${isBought ? "bought-glow" : ""}">
+      <div class="garage-card ${cardGlow}">
         <div class="garage-top">
           <div>
             <span class="verdict-pill ${verdictClass}">${escapeHtml(car.verdict)}</span>
-            ${car.shortlisted ? `<span class="badge-neon" style="margin-left:6px;">★ SHORTLISTED</span>` : ""}
-            ${isBought ? `<span class="popular-inline">🏆 CAR BOUGHT</span>` : ""}
+            ${car.shortlisted ? `<span class="badge-neon" style="margin-left:5px;">★ TOP 5</span>` : ""}
+            ${car.top3 ? `<span class="badge-neon badge-pink" style="margin-left:5px;">🎯 TOP 3</span>` : ""}
+            ${isCore ? `<span class="tag-inline tag-core">🔬 1 CORE PICK</span>` : ""}
+            ${isBought ? `<span class="tag-inline tag-bought">🏆 CAR BOUGHT</span>` : ""}
             <h4 style="margin-top:8px;">${escapeHtml(car.name)}</h4>
             <div class="brand-sub">
               ${car.vin ? `VIN: ${escapeHtml(car.vin)} • ` : ""}${escapeHtml(car.source)} • ${escapeHtml(car.createdAt)}
@@ -675,7 +726,13 @@ function renderGarage() {
           </div>
           <div class="garage-actions">
             <button type="button" class="btn btn-ghost btn-sm" onclick="toggleShortlist('${car.id}')">
-              ${car.shortlisted ? "Unstar" : "★ Shortlist"}
+              ${car.shortlisted ? "★ Top 5" : "+ Top 5"}
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="toggleTop3('${car.id}')">
+              ${car.top3 ? "🎯 In Top 3" : "+ Top 3"}
+            </button>
+            <button type="button" class="btn btn-amber btn-sm" onclick="setCorePick('${car.id}')">
+              🔬 1 Core
             </button>
             <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${car.id}')">Copy Report</button>
             <button type="button" class="btn btn-install btn-sm" onclick="markCarBought('${car.id}')">🏆 Bought</button>
@@ -687,6 +744,193 @@ function renderGarage() {
     .join("");
 }
 
+/* =========================================================
+   VISUAL COMMAND FUNNEL DIAGRAM LIVE UPDATER
+   ========================================================= */
+function setRingProgress(ringId, ratio) {
+  const el = document.getElementById(ringId);
+  if (!el) return;
+  const clamped = Math.max(0, Math.min(1, ratio));
+  el.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - clamped));
+}
+
+function renderVisualFunnelDiagram() {
+  const remainingFree = Math.max(0, CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday);
+  const scannedTotal = state.carsChecked;
+  const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
+  const vinCheckedCount = state.cars.filter((c) => Boolean(c.vin)).length;
+  const top3Count = state.cars.filter((c) => c.top3).length;
+  const coreCar = state.cars.find((c) => c.id === state.coreCarId) || null;
+  const boughtCar = state.cars.find((c) => c.id === state.boughtCarId) || null;
+
+  // 1) Top Free AI Battery HUD
+  const freeText = document.getElementById("freeScansLeftText");
+  if (freeText) {
+    freeText.textContent = `${remainingFree} / ${CONFIG.DAILY_FREE_AI_LIMIT} Left`;
+    freeText.style.color = remainingFree === 0 ? "var(--neon-red)" : "var(--neon-green)";
+  }
+  const pipsWrap = document.getElementById("batteryPips");
+  if (pipsWrap) {
+    pipsWrap.innerHTML = Array.from({ length: CONFIG.DAILY_FREE_AI_LIMIT }, (_, i) =>
+      `<div class="pip ${i < remainingFree ? "charged" : ""}"></div>`
+    ).join("");
+  }
+
+  // 2) Stage 1 Ring & Counts (Target 10+ scans over 3-4 days)
+  const s1Ratio = Math.min(1, scannedTotal / CONFIG.STAGE1_TARGET_CARS);
+  setRingProgress("n1Ring", s1Ratio);
+  document.getElementById("n1Count").textContent = `${scannedTotal}/${CONFIG.STAGE1_TARGET_CARS}`;
+  document.getElementById("n1Sub").textContent = `${scannedTotal} Scanned`;
+
+  // 3) Stage 2 Ring & 5 Bundle Slots
+  const stage2ActiveCount = Math.max(vinCheckedCount, Math.min(5, shortlistedCount));
+  const s2Ratio = Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS);
+  setRingProgress("n2Ring", s2Ratio);
+  document.getElementById("n2Count").textContent = `${vinCheckedCount}/5`;
+  document.getElementById("n2Credits").textContent = `${state.vinCredits} Credit${state.vinCredits === 1 ? "" : "s"} Left`;
+
+  const n2Slots = document.getElementById("n2Slots");
+  if (n2Slots) {
+    n2Slots.innerHTML = Array.from({ length: 5 }, (_, i) => {
+      if (i < vinCheckedCount) return `<span class="slot-dot filled-pink" title="VIN Checked"></span>`;
+      if (i < shortlistedCount) return `<span class="slot-dot filled-cyan" title="Shortlisted"></span>`;
+      return `<span class="slot-dot"></span>`;
+    }).join("");
+  }
+
+  // 4) Stage 3 Ring & Top 3 -> 1 Core Slots
+  const s3Progress = coreCar ? 1 : Math.min(0.85, top3Count / CONFIG.STAGE3_TARGET_TOP3);
+  setRingProgress("n3Ring", s3Progress);
+  document.getElementById("n3Count").textContent = `${top3Count}/3`;
+  document.getElementById("n3CoreLabel").textContent = coreCar
+    ? `Core: ${coreCar.name.slice(0, 18)}${coreCar.name.length > 18 ? "…" : ""}`
+    : "Core: Not Picked";
+
+  const n3Slots = document.getElementById("n3Slots");
+  if (n3Slots) {
+    n3Slots.innerHTML = Array.from({ length: 3 }, (_, i) => {
+      if (i === 0 && coreCar) return `<span class="slot-dot filled-amber" title="Core Winner"></span>`;
+      if (i < top3Count) return `<span class="slot-dot filled-pink" title="Top 3 Finalist"></span>`;
+      return `<span class="slot-dot"></span>`;
+    }).join("");
+  }
+
+  // 5) Stage 4 Victory Ring
+  setRingProgress("n4Ring", boughtCar ? 1 : 0);
+  document.getElementById("n4CarName").textContent = boughtCar
+    ? boughtCar.name.slice(0, 20)
+    : "Waiting for Winner";
+
+  // 6) Node Active / Completed Glow + Laser Pipes
+  const n1 = document.getElementById("node1");
+  const n2 = document.getElementById("node2");
+  const n3 = document.getElementById("node3");
+  const n4 = document.getElementById("node4");
+  [n1, n2, n3, n4].forEach((el) => el && el.classList.remove("node-active", "node-done"));
+
+  const p1 = document.getElementById("pipe1");
+  const p2 = document.getElementById("pipe2");
+  const p3 = document.getElementById("pipe3");
+  [p1, p2, p3].forEach((el) => el && el.classList.remove("lit"));
+
+  if (scannedTotal > 0) {
+    n1.classList.add(shortlistedCount >= 1 || scannedTotal >= 3 ? "node-done" : "node-active");
+    document.getElementById("n1Status").textContent = scannedTotal >= 3 ? "FLOWING" : "ACTIVE";
+    p1.classList.add("lit");
+  } else {
+    n1.classList.add("node-active");
+    document.getElementById("n1Status").textContent = "START HERE";
+  }
+
+  if (vinCheckedCount > 0) {
+    n2.classList.add(top3Count >= 1 || vinCheckedCount >= 3 ? "node-done" : "node-active");
+    document.getElementById("n2Status").textContent = `${vinCheckedCount} VIN DONE`;
+    p2.classList.add("lit");
+  } else if (shortlistedCount > 0) {
+    n2.classList.add("node-active");
+    document.getElementById("n2Status").textContent = "READY";
+  } else {
+    document.getElementById("n2Status").textContent = "$8.99 PASS";
+  }
+
+  if (coreCar) {
+    n3.classList.add("node-done");
+    document.getElementById("n3Status").textContent = "1 CORE LOCKED";
+    p3.classList.add("lit");
+  } else if (top3Count > 0) {
+    n3.classList.add("node-active");
+    document.getElementById("n3Status").textContent = `${top3Count}/3 READY`;
+  } else {
+    document.getElementById("n3Status").textContent = "AUDIT";
+  }
+
+  if (boughtCar) {
+    n4.classList.add("node-done");
+    document.getElementById("n4Status").textContent = "BOUGHT!";
+  } else if (coreCar) {
+    n4.classList.add("node-active");
+    document.getElementById("n4Status").textContent = "FINAL STEP";
+  } else {
+    document.getElementById("n4Status").textContent = "GOAL";
+  }
+
+  // 7) Accurate Mission Progress % (Starts at 0%, grows only on real actions)
+  let pct = 0;
+  if (scannedTotal > 0) pct += Math.min(25, Math.round((scannedTotal / 4) * 25));
+  if (shortlistedCount > 0) pct += 15;
+  if (vinCheckedCount > 0) pct += Math.min(25, Math.round((vinCheckedCount / 3) * 25));
+  if (top3Count > 0) pct += 10;
+  if (coreCar) pct += 15;
+  if (boughtCar) pct = 100;
+  pct = Math.min(100, pct);
+
+  document.getElementById("missionPctBadge").textContent = `${pct}% Mission`;
+
+  // 8) Narrowing Funnel Ratio Bars
+  document.getElementById("bar1Fill").style.width = `${Math.max(6, Math.min(100, (scannedTotal / 10) * 100))}%`;
+  document.getElementById("bar1Val").textContent = `${scannedTotal} cars`;
+
+  document.getElementById("bar2Fill").style.width = `${Math.max(4, Math.min(100, (Math.max(vinCheckedCount, shortlistedCount) / 5) * 100))}%`;
+  document.getElementById("bar2Val").textContent = `${Math.min(5, Math.max(vinCheckedCount, shortlistedCount))} / 5`;
+
+  document.getElementById("bar3Fill").style.width = `${Math.max(4, Math.min(100, (top3Count / 3) * 100))}%`;
+  document.getElementById("bar3Val").textContent = `${top3Count} / 3`;
+
+  document.getElementById("bar4Fill").style.width = boughtCar ? "100%" : coreCar ? "60%" : "4%";
+  document.getElementById("bar4Val").textContent = boughtCar ? "1 Bought" : coreCar ? "1 Core" : "0 / 1";
+
+  // 9) Live Mission Commander Next-Step Guidance
+  const guideText = document.getElementById("nextActionText");
+  const guideBtn = document.getElementById("nextActionBtn");
+  if (guideText && guideBtn) {
+    if (boughtCar) {
+      guideText.textContent = `🏆 MISSION ACCOMPLISHED! You screened ${scannedTotal} cars and closed on ${boughtCar.name}. Share your victory card!`;
+      guideBtn.textContent = "Share My Victory Card →";
+      guideBtn.onclick = () => document.getElementById("copyJourneyCardBtn")?.click();
+    } else if (coreCar) {
+      guideText.textContent = `1 Core Car locked (${coreCar.name}). Complete your Deep Audit & mechanic check, then mark it as Bought!`;
+      guideBtn.textContent = "Go to Garage Winner →";
+      guideBtn.onclick = () => jumpToSection("garageCard");
+    } else if (vinCheckedCount > 0 || top3Count > 0) {
+      guideText.textContent = `Nice work! You have ${vinCheckedCount} VIN check(s) & ${top3Count}/3 Finalists. Pick your 1 Core Car for deep research.`;
+      guideBtn.textContent = "Pick 1 Core Car in Garage →";
+      guideBtn.onclick = () => jumpToSection("garageCard");
+    } else if (shortlistedCount > 0) {
+      guideText.textContent = `You shortlisted ${shortlistedCount} car(s)! Now run their 17-digit VIN through U.S. NHTSA in Step 2 (Bundle Pass).`;
+      guideBtn.textContent = "Go to Step 2: VIN Check →";
+      guideBtn.onclick = () => jumpToSection("vinScannerCard");
+    } else if (scannedTotal > 0) {
+      guideText.textContent = `You scanned ${scannedTotal} listing(s) (${remainingFree}/4 free left today). Star your best picks into your Top 5 Shortlist!`;
+      guideBtn.textContent = "Continue Free Scans →";
+      guideBtn.onclick = () => jumpToSection("aiScannerCard");
+    } else {
+      guideText.textContent = "Start with your 4 Free AI Scans today! Screen 10–15 listings over 3–4 days to filter out risky cars.";
+      guideBtn.textContent = "Start Step 1: Free AI Scan →";
+      guideBtn.onclick = () => jumpToSection("aiScannerCard");
+    }
+  }
+}
+
 function renderAll() {
   const emailEl = document.getElementById("buyerEmail");
   if (emailEl && document.activeElement !== emailEl) emailEl.value = state.email;
@@ -696,15 +940,6 @@ function renderAll() {
 
   const sellerEl = document.getElementById("sellerType");
   if (sellerEl) sellerEl.value = state.sellerType;
-
-  const remaining = Math.max(0, CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday);
-  const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
-  const vinCheckedCount = state.cars.filter((c) => Boolean(c.vin)).length;
-
-  document.getElementById("freeScansLeft").textContent = `${remaining} / ${CONFIG.DAILY_FREE_AI_LIMIT}`;
-  document.getElementById("carsCheckedCount").textContent = String(state.carsChecked);
-  document.getElementById("shortlistedCount").textContent = String(shortlistedCount);
-  document.getElementById("vinCreditsCount").textContent = String(state.vinCredits);
 
   const badge = document.getElementById("profileBadge");
   const avatar = document.getElementById("profileAvatar");
@@ -724,65 +959,24 @@ function renderAll() {
     }
   }
 
-  let pct = 25;
-  const s1 = document.getElementById("stage1Card");
-  const s2 = document.getElementById("stage2Card");
-  const s3 = document.getElementById("stage3Card");
-  const s4 = document.getElementById("stage4Card");
-
-  [s1, s2, s3, s4].forEach((el) => el && el.classList.remove("active", "completed"));
-
-  if (state.carsChecked > 0 || state.cars.length > 0) {
-    s1.classList.add("completed");
-    document.getElementById("stage1Pill").textContent = `${state.carsChecked} Scanned`;
-    pct = 45;
-  } else {
-    s1.classList.add("active");
-    document.getElementById("stage1Pill").textContent = "Active";
-  }
-
-  if (vinCheckedCount > 0) {
-    s2.classList.add("completed");
-    document.getElementById("stage2Pill").textContent = `${vinCheckedCount} VIN Checked`;
-    pct = 70;
-  } else if (shortlistedCount > 0 || state.vinCredits > 0) {
-    s2.classList.add("active");
-    document.getElementById("stage2Pill").textContent = `${state.vinCredits} Credit(s)`;
-    pct = Math.max(pct, 55);
-  } else {
-    document.getElementById("stage2Pill").textContent = "Locked";
-  }
-
-  if (shortlistedCount >= 2 || vinCheckedCount >= 2) {
-    s3.classList.add("active");
-    document.getElementById("stage3Pill").textContent = "Finalists Ready";
-    pct = Math.max(pct, 85);
-  } else {
-    document.getElementById("stage3Pill").textContent = "Phase 2";
-  }
-
   const victoryBox = document.getElementById("victoryBanner");
-  if (state.boughtCarId) {
+  if (victoryBox) {
     const boughtCar = state.cars.find((c) => c.id === state.boughtCarId);
-    s4.classList.add("completed");
-    document.getElementById("stage4Pill").textContent = "Bought!";
-    pct = 100;
-    if (victoryBox && boughtCar) {
+    if (boughtCar) {
+      const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
+      const vinCheckedCount = state.cars.filter((c) => Boolean(c.vin)).length;
       victoryBox.style.display = "block";
       victoryBox.innerHTML = `
         <strong>🏆 MISSION ACCOMPLISHED!</strong> You screened <strong>${state.carsChecked}</strong> listing(s),
         shortlisted <strong>${shortlistedCount}</strong>, ran <strong>${vinCheckedCount}</strong> NHTSA VIN check(s),
         and closed on <strong>${escapeHtml(boughtCar.name)}</strong>!
       `;
+    } else {
+      victoryBox.style.display = "none";
     }
-  } else {
-    document.getElementById("stage4Pill").textContent = "Goal";
-    if (victoryBox) victoryBox.style.display = "none";
   }
 
-  document.getElementById("journeyProgressBar").style.width = `${pct}%`;
-  document.getElementById("journeyPercentLabel").textContent = `${pct}% Mission`;
-
+  renderVisualFunnelDiagram();
   renderGarage();
 }
 
@@ -806,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveState();
     setBanner(
       emailInput
-        ? `Auto-login profile saved for ${emailInput} (${state.usState}). Your car journey is synced on this device.`
+        ? `Auto-login profile saved for ${emailInput} (${state.usState}). Your 15→5→3→1 funnel stays synced on this device.`
         : `State updated to ${state.usState}. Enter your Gmail/Email to save your buyer profile.`
     );
   });
@@ -830,7 +1024,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("carPriceInput").value = "13500";
     document.getElementById("listingTextInput").value =
       "Selling for a friend. Runs great! Check engine light is on, probably just an easy fix O2 sensor. Lost title in move so bill of sale only. Cash today only, must sell today, no test drive without cash in hand.";
-    setBanner("Sample risky listing loaded! Click 'Run Free AI Red-Flag Scan' to see the verdict.");
+    setBanner("Sample risky listing loaded! Click 'Run Free AI Red-Flag Scan' to see the funnel react live.");
   });
 
   document.getElementById("runVinCheckBtn")?.addEventListener("click", runVinNhtsaCheck);
@@ -847,19 +1041,21 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       state.vinCredits += CONFIG.PASS_CREDITS_AMOUNT;
       saveState();
-      setBanner("Demo Mode: +5 VIN & NHTSA Pass credits added! Connect your Dodo Payments $8.99 URL when ready.");
+      setBanner("Demo Mode: +5 VIN & NHTSA Pass credits added! Watch Step 2 update in the funnel above.");
     }
   });
 
   document.getElementById("deepHistoryBtn")?.addEventListener("click", () => {
     trackFunnelEvent("stage_3_waitlist_clicked", { plan: "deep_history_13_99" });
-    setBanner("Layer 3 Deep VIN History ($13.99 — Title/Salvage/Odometer API) is scheduled for Phase 2 after launch! Your interest has been logged.");
+    setBanner("Stage 3 Core Deep Audit ($13.99 — Paid Title/Salvage/Odometer API) is ready for Phase 2 rollout! Your interest is logged.");
   });
 
   document.getElementById("copyJourneyCardBtn")?.addEventListener("click", async () => {
     const boughtCar = state.cars.find((c) => c.id === state.boughtCarId);
+    const coreCar = state.cars.find((c) => c.id === state.coreCarId);
     const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
-    const shareText = `🚗 My Car-Buying Mission on BuyerCheck (CarDesk US):\n• Listings Screened: ${state.carsChecked}\n• Shortlisted Contenders: ${shortlistedCount}\n• Final Decision: ${boughtCar ? `BOUGHT ${boughtCar.name} 🏆` : "In Progress"}\nCheck used cars before you buy 👉 https://buyercheck.cardeskus.com`;
+    const top3Count = state.cars.filter((c) => c.top3).length;
+    const shareText = `🚗 My 15→5→3→1 Car-Buying Funnel on BuyerCheck (CarDesk US):\n• Listings Screened: ${state.carsChecked}\n• Shortlisted (Top 5): ${shortlistedCount}\n• Finalists (Top 3): ${top3Count}\n• Core Winner: ${boughtCar ? `BOUGHT ${boughtCar.name} 🏆` : coreCar ? `Auditing ${coreCar.name} 🔬` : "In Progress"}\nCheck used cars before you buy 👉 https://buyercheck.cardeskus.com`;
     try {
       await navigator.clipboard.writeText(shareText);
       setBanner("Shareable Status / Word-of-Mouth Card copied! Paste it on WhatsApp, Instagram, or X.");

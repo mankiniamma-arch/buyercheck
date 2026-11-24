@@ -7,8 +7,8 @@
   <meta name="description" content="BuyerCheck by CarDesk US — Used Car Red-Flag, VIN & NHTSA Buyer Journey Funnel for All 50 US States + D.C." />
   <title>BuyerCheck — CarDesk US | Visual Used-Car Buying Funnel</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" type="image/jpeg" href="./logo.jpeg" />
-  <link rel="apple-touch-icon" href="./logo.jpeg" />
+  <!-- Inline Neon Car SVG Favicon (No image upload needed) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 72'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2300f0ff'/%3E%3Cstop offset='100%25' stop-color='%23ff00e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='72' rx='14' fill='%2307060c'/%3E%3Cg stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M 18 30 L 28 14 Q 50 9 72 14 L 82 30 Z' fill='%230f1b33' stroke='url(%23g)' stroke-width='3'/%3E%3Cpath d='M 8 48 L 11 34 Q 15 30 22 30 L 78 30 Q 85 30 89 34 L 92 48 Q 92 54 86 54 L 14 54 Q 8 54 8 48 Z' fill='%230c1428' stroke='url(%23g)' stroke-width='3.2'/%3E%3Cpath d='M 14 39 L 29 41 L 26 45 L 13 44 Z' fill='%2300f0ff'/%3E%3Cpath d='M 86 39 L 71 41 L 74 45 L 87 44 Z' fill='%23ff00e5'/%3E%3C/g%3E%3C/svg%3E" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
@@ -50,9 +50,9 @@
       top: 0;
       z-index: 60;
       backdrop-filter: blur(16px);
-      background: rgba(7, 6, 14, 0.88);
+      background: rgba(7, 6, 14, 0.9);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 12px 18px;
+      padding: 10px 18px;
     }
 
     .topbar-inner {
@@ -65,32 +65,33 @@
       flex-wrap: wrap;
     }
 
-    .brand-group { display: flex; align-items: center; gap: 12px; }
-
-    .cd-logo-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 1px solid rgba(255, 46, 147, 0.55);
-      box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
-      background: #0d0b18;
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .cd-logo-fallback {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--neon-pink), var(--neon-violet), var(--neon-cyan));
-      display: none;
-      place-items: center;
-      font-weight: 900;
-      font-size: 1.05rem;
-      color: #07060c;
-      box-shadow: 0 0 22px rgba(255, 46, 147, 0.45);
+    .brand-logo-link {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.24));
+      transition: transform 0.18s ease, filter 0.18s ease;
     }
 
-    .brand-title { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .brand-logo-link:hover {
+      transform: translateY(-1px);
+      filter: drop-shadow(0 0 14px rgba(255, 0, 229, 0.4));
+    }
+
+    .brand-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 1px solid rgba(255, 255, 255, 0.14);
+      padding-left: 12px;
+    }
 
     .badge-neon {
       font-size: 0.67rem;
@@ -102,6 +103,7 @@
       text-transform: uppercase;
       letter-spacing: 0.8px;
       font-weight: 800;
+      width: fit-content;
     }
 
     .badge-pink {
@@ -122,7 +124,7 @@
       border-color: rgba(0, 245, 155, 0.45);
     }
 
-    .brand-sub { font-size: 0.8rem; color: var(--text-muted); }
+    .brand-sub { font-size: 0.78rem; color: var(--text-muted); }
 
     .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
@@ -518,10 +520,7 @@
       align-items: center;
     }
 
-    .ratio-bars {
-      display: grid;
-      gap: 7px;
-    }
+    .ratio-bars { display: grid; gap: 7px; }
 
     .ratio-row {
       display: grid;
@@ -563,10 +562,7 @@
       color: var(--neon-amber);
     }
 
-    .mission-brief-text {
-      font-size: 0.84rem;
-      color: var(--text-main);
-    }
+    .mission-brief-text { font-size: 0.84rem; color: var(--text-main); }
 
     /* MAIN CARDS & SCANNERS */
     .victory-banner {
@@ -755,19 +751,9 @@
 
     /* RESPONSIVE PIPELINE (TABLET & MOBILE) */
     @media (max-width: 1020px) {
-      .pipeline-flow {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
-      .pipe-connector {
-        height: 36px;
-        flex-direction: row;
-        gap: 8px;
-      }
-      .connector-line {
-        width: 4px;
-        height: 100%;
-      }
+      .pipeline-flow { grid-template-columns: 1fr; gap: 0; }
+      .pipe-connector { height: 36px; flex-direction: row; gap: 8px; }
+      .connector-line { width: 4px; height: 100%; }
       .connector-line::after {
         left: 0;
         top: -60%;
@@ -785,6 +771,11 @@
       .specs-grid { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 620px) {
+      .brand-meta { border-left: none; padding-left: 0; }
+      .brand-logo-link svg { width: 175px; height: 40px; }
+    }
+
     @media (max-width: 560px) {
       .row-2 { grid-template-columns: 1fr; }
       .ratio-row { grid-template-columns: 98px 1fr 48px; }
@@ -795,21 +786,36 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand-group">
-        <img
-          src="./logo.jpeg"
-          alt="CarDesk US Logo"
-          class="cd-logo-img"
-          onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='grid';"
-        />
-        <div id="logoFallback" class="cd-logo-fallback">CD</div>
-        <div>
-          <div class="brand-title">
-            <span>CarDesk US</span>
-            <span class="badge-neon">BUYERCHECK AI</span>
-          </div>
+        <a href="./" class="brand-logo-link" aria-label="CarDesk US Home">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="220" height="50" role="img" aria-label="CarDesk US">
+            <defs>
+              <linearGradient id="navNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00f0ff"/>
+                <stop offset="100%" stop-color="#ff00e5"/>
+              </linearGradient>
+            </defs>
+            <!-- Car Icon -->
+            <g stroke-linecap="round" stroke-linejoin="round">
+              <path d="M 18 30 L 28 14 Q 50 9 72 14 L 82 30 Z" fill="#0f1b33" stroke="url(#navNeon)" stroke-width="2.5"/>
+              <path d="M 8 48 L 11 34 Q 15 30 22 30 L 78 30 Q 85 30 89 34 L 92 48 Q 92 54 86 54 L 14 54 Q 8 54 8 48 Z" fill="#0c1428" stroke="url(#navNeon)" stroke-width="2.8"/>
+              <path d="M 14 39 L 29 41 L 26 45 L 13 44 Z" fill="#00f0ff"/>
+              <path d="M 86 39 L 71 41 L 74 45 L 87 44 Z" fill="#ff00e5"/>
+              <rect x="35" y="42" width="30" height="7" rx="2" fill="none" stroke="url(#navNeon)" stroke-width="1.8"/>
+              <rect x="14" y="54" width="15" height="7" rx="2" fill="#090d1a" stroke="#00f0ff" stroke-width="2"/>
+              <rect x="71" y="54" width="15" height="7" rx="2" fill="#090d1a" stroke="#ff00e5" stroke-width="2"/>
+            </g>
+            <!-- Brand Text -->
+            <text x="106" y="45" font-family="'Segoe UI', Inter, Arial, sans-serif" font-weight="800" font-size="28" letter-spacing="0.4">
+              <tspan fill="#38f6ff">CarDesk </tspan><tspan fill="#ff2ae6">US</tspan>
+            </text>
+          </svg>
+        </a>
+        <div class="brand-meta">
+          <span class="badge-neon">BUYERCHECK AI</span>
           <div class="brand-sub">Used Car Red-Flag, VIN &amp; NHTSA Buyer Funnel</div>
         </div>
       </div>
+
       <div class="top-actions">
         <span class="profile-chip">
           <img id="profileAvatar" class="profile-avatar" alt="Profile" />

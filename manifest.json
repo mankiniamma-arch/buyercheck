@@ -1,0 +1,25 @@
+{
+  "name": "BuyerCheck — CarDesk US",
+  "short_name": "BuyerCheck",
+  "description": "Used Car Red-Flag, VIN & NHTSA Buyer Funnel for All 50 US States + D.C.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#08070d",
+  "theme_color": "#ff2e93",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202926.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202926.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

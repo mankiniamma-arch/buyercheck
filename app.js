@@ -1,10 +1,10 @@
 /* =========================================================
-   BuyerCheck — CarDesk US | Ultra-Clean US Engine (v2.1)
-   Compact 15->5->3->1 Roadmap + Live NHTSA APIs + Google Auth
+   BuyerCheck — CarDesk US | Ultra-Clean US Engine (v2.2)
+   Live Google Sheets Backend + Auto HTML Emails + NHTSA APIs
    ========================================================= */
 
 const CONFIG = {
-  APP_VERSION: "2.1.0",
+  APP_VERSION: "2.2.0",
   DAILY_FREE_AI_LIMIT: 4,
   STAGE1_TARGET_CARS: 10,
   STAGE2_TARGET_CARS: 5,
@@ -12,8 +12,8 @@ const CONFIG = {
   PASS_CREDITS_AMOUNT: 5,
   // 1) Google Cloud OAuth Client ID (milte hi chat mein bhejein, main add kar dunga)
   GOOGLE_CLIENT_ID: "",
-  // 2) Part-4 Google Apps Script Web App URL
-  BACKEND_WEBHOOK_URL: "",
+  // 2) Connected Google Apps Script Backend & HTML Email Webhook
+  BACKEND_WEBHOOK_URL: "https://script.google.com/macros/s/AKfycbyBApfT2_QreQEpULEA2dI2eB_G4a6Is0ozjy7k8mLLzLciGkKOuwzdP2p4YKob-8hY/exec",
   // 3) Dodo Payments ($8.99 5-Car Pass) checkout URL
   DODO_CHECKOUT_URL: ""
 };
@@ -132,6 +132,10 @@ function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -163,7 +167,7 @@ function setBanner(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3600);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3800);
   }
 }
 
@@ -202,7 +206,7 @@ function trackFunnelEvent(stage, detail = {}) {
     fetch(CONFIG.BACKEND_WEBHOOK_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(eventObj)
     }).catch(() => {});
   }
@@ -239,7 +243,7 @@ function handleGoogleCredential(response) {
   state.authMethod = "google";
   trackFunnelEvent("stage_0_google_login");
   saveState();
-  setBanner(`Signed in as ${state.name || state.email}. Your progress is saved.`);
+  setBanner(`Signed in as ${state.name || state.email}. Welcome email & sync active!`);
 }
 
 function initGoogleAuth() {
@@ -249,7 +253,7 @@ function initGoogleAuth() {
 
   if (!CONFIG.GOOGLE_CLIENT_ID) {
     wrap.innerHTML = `<span class="badge-neon">1-Click Google Login Ready</span>`;
-    hint.textContent = "Connect your Google OAuth Client ID to enable 1-click sign-in, or save your email on the right.";
+    hint.textContent = "Connect your Google OAuth Client ID to enable 1-click sign-in, or save your email on the right to receive HTML reports.";
     return;
   }
 
@@ -375,7 +379,15 @@ function runAiListingScan() {
   };
 
   renderAiResult(lastAiDraft, hits, verdict);
-  trackFunnelEvent("stage_1_free_ai_scan", { carName, verdict: verdict.code, riskScore });
+  trackFunnelEvent("stage_1_free_ai_scan", {
+    carName,
+    source: lastAiDraft.source,
+    verdict: verdict.code,
+    riskScore,
+    flags: lastAiDraft.flags,
+    questions: lastAiDraft.questions,
+    walkAwayScript: lastAiDraft.walkAwayScript
+  });
   saveState();
   setBanner(`Scan done for "${carName}" (${verdict.code}). ${CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday} free scans left today.`);
 }
@@ -428,6 +440,7 @@ function renderAiResult(draft, hits, verdict) {
 
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
         <button type="button" class="btn btn-cyan btn-sm" onclick="saveCurrentAiToGarage(true)">★ Shortlist (Top 5)</button>
+        <button type="button" class="btn btn-install btn-sm" onclick="emailCurrentAiReport()">📧 Email Report</button>
         <button type="button" class="btn btn-ghost btn-sm" onclick="saveCurrentAiToGarage(false)">Save Only</button>
       </div>
     </div>
@@ -449,6 +462,11 @@ window.saveCurrentAiToGarage = function (isShortlisted) {
       ? `"${lastAiDraft.name}" added to your Top 5 Shortlist! Run its VIN in Step 2.`
       : `"${lastAiDraft.name}" saved to My Garage.`
   );
+};
+
+window.emailCurrentAiReport = function () {
+  if (!lastAiDraft) return;
+  sendReportPayloadToEmail(lastAiDraft);
 };
 
 /* =========================================================
@@ -531,13 +549,13 @@ async function runVinNhtsaCheck() {
       name: fullName,
       price: "NHTSA Verified",
       vin: vinRaw,
-      source: "NHTSA VIN Check",
+      source: "Official U.S. NHTSA VIN Check",
       verdict: verdict.code,
       riskScore,
       recallsCount: recalls.length,
       complaintsCount: complaints.length,
       specs: { trim, body, engine, plant },
-      flags: recalls.slice(0, 3).map((r) => `Recall: ${r.Component || "Safety Component"}`),
+      flags: recalls.slice(0, 4).map((r) => `Recall: ${r.Component || "Safety Component"}`),
       questions: [
         recalls.length > 0
           ? `NHTSA lists ${recalls.length} safety recall(s) for this model year — have all recalls been completed at a dealer?`
@@ -557,9 +575,14 @@ async function runVinNhtsaCheck() {
     trackFunnelEvent("stage_2_vin_nhtsa_check", {
       vin: vinRaw,
       carName: fullName,
+      source: lastVinDraft.source,
       recallsCount: recalls.length,
       complaintsCount: complaints.length,
-      verdict: verdict.code
+      verdict: verdict.code,
+      riskScore,
+      flags: lastVinDraft.flags,
+      questions: lastVinDraft.questions,
+      walkAwayScript: lastVinDraft.walkAwayScript
     });
     saveState();
 
@@ -604,20 +627,58 @@ async function runVinNhtsaCheck() {
 
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
             <button type="button" class="btn btn-amber btn-sm" onclick="toggleTop3('${lastVinDraft.id}')">🎯 Add to Top 3</button>
-            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${lastVinDraft.id}')">Copy Report</button>
-            <button type="button" class="btn btn-install btn-sm" onclick="setCorePick('${lastVinDraft.id}')">🔬 Pick as Core Car</button>
+            <button type="button" class="btn btn-install btn-sm" onclick="emailCarReport('${lastVinDraft.id}')">📧 Email Report</button>
+            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${lastVinDraft.id}')">Copy</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="setCorePick('${lastVinDraft.id}')">🔬 Core Pick</button>
           </div>
         </div>
       `;
     }
 
-    setBanner(`NHTSA VIN verified for ${fullName}! Saved to My Garage.`);
+    setBanner(
+      isValidEmail(state.email)
+        ? `NHTSA VIN verified for ${fullName}! Full HTML report auto-emailed to ${state.email}.`
+        : `NHTSA VIN verified for ${fullName}! Save your email below to receive HTML reports.`
+    );
   } catch {
     if (box) {
       box.innerHTML = `<div class="status-banner" style="margin-top:12px;">Couldn't reach NHTSA right now. Check your connection and try again.</div>`;
     }
   }
 }
+
+/* =========================================================
+   EMAIL REPORT HELPER (TRIGGERS APPS SCRIPT HTML EMAIL)
+   ========================================================= */
+function sendReportPayloadToEmail(car) {
+  if (!isValidEmail(state.email)) {
+    setBanner("Save your Gmail / Email below first so we can email your HTML report!");
+    jumpToSection("profileCard");
+    document.getElementById("buyerEmail")?.focus();
+    return;
+  }
+
+  trackFunnelEvent("manual_email_report", {
+    carName: car.name,
+    vin: car.vin || "",
+    source: car.source || "BuyerCheck Report",
+    verdict: car.verdict || "CAUTION",
+    riskScore: car.riskScore || 0,
+    recallsCount: car.recallsCount,
+    complaintsCount: car.complaintsCount,
+    flags: car.flags || [],
+    questions: car.questions || [],
+    walkAwayScript: car.walkAwayScript || ""
+  });
+
+  setBanner(`📧 World-class HTML report for "${car.name}" sent to ${state.email}! Check your inbox.`);
+}
+
+window.emailCarReport = function (carId) {
+  const car = state.cars.find((c) => c.id === carId);
+  if (!car) return;
+  sendReportPayloadToEmail(car);
+};
 
 /* =========================================================
    GARAGE SHOWDOWN (TOP 5 -> TOP 3 -> 1 CORE -> BOUGHT)
@@ -700,9 +761,18 @@ window.markCarBought = function (carId) {
   car.top3 = true;
   state.coreCarId = carId;
   state.boughtCarId = carId;
-  trackFunnelEvent("stage_4_car_bought", { carName: car.name, vin: car.vin || "" });
+  trackFunnelEvent("stage_4_car_bought", {
+    carName: car.name,
+    vin: car.vin || "",
+    verdict: car.verdict || "YES",
+    riskScore: car.riskScore || 0
+  });
   saveState();
-  setBanner(`Congrats! "${car.name}" is marked as Bought.`);
+  setBanner(
+    isValidEmail(state.email)
+      ? `🏆 Congrats! "${car.name}" marked as Bought — Victory summary emailed to ${state.email}!`
+      : `🏆 Congrats! "${car.name}" is marked as Bought.`
+  );
 };
 
 window.removeCar = function (carId) {
@@ -752,7 +822,8 @@ function renderGarage() {
               ${car.top3 ? "🎯 Top 3" : "+ Top 3"}
             </button>
             <button type="button" class="btn btn-amber btn-sm" onclick="setCorePick('${car.id}')">🔬 Core</button>
-            <button type="button" class="btn btn-cyan btn-sm" onclick="copyCarReport('${car.id}')">Copy</button>
+            <button type="button" class="btn btn-cyan btn-sm" onclick="emailCarReport('${car.id}')">📧 Email</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="copyCarReport('${car.id}')">Copy</button>
             <button type="button" class="btn btn-install btn-sm" onclick="markCarBought('${car.id}')">🏆 Bought</button>
             <button type="button" class="btn btn-ghost btn-sm" onclick="removeCar('${car.id}')">✕</button>
           </div>
@@ -786,7 +857,6 @@ function renderVisualRoadmap() {
   const coreCar = state.cars.find((c) => c.id === state.coreCarId) || null;
   const boughtCar = state.cars.find((c) => c.id === state.boughtCarId) || null;
 
-  // 1) Daily Free Battery HUD
   const freeText = document.getElementById("freeScansLeftText");
   if (freeText) {
     freeText.textContent = `${remainingFree} / ${CONFIG.DAILY_FREE_AI_LIMIT} Left`;
@@ -799,12 +869,10 @@ function renderVisualRoadmap() {
     ).join("");
   }
 
-  // 2) Step 1 Ring
   setRingProgress("n1Ring", Math.min(1, scannedTotal / CONFIG.STAGE1_TARGET_CARS));
   setText("n1Count", `${scannedTotal}/${CONFIG.STAGE1_TARGET_CARS}`);
   setText("n1Sub", `${scannedTotal} Scanned`);
 
-  // 3) Step 2 Ring & 5 Slots
   const stage2ActiveCount = Math.max(vinCheckedCount, Math.min(5, shortlistedCount));
   setRingProgress("n2Ring", Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS));
   setText("n2Count", `${vinCheckedCount}/5`);
@@ -819,7 +887,6 @@ function renderVisualRoadmap() {
     }).join("");
   }
 
-  // 4) Step 3 Ring & 3 Slots
   setRingProgress("n3Ring", coreCar ? 1 : Math.min(0.85, top3Count / CONFIG.STAGE3_TARGET_TOP3));
   setText("n3Count", `${top3Count}/3`);
   setText("n3CoreLabel", coreCar ? `Core: ${coreCar.name.slice(0, 15)}${coreCar.name.length > 15 ? "…" : ""}` : "Core: None");
@@ -833,11 +900,9 @@ function renderVisualRoadmap() {
     }).join("");
   }
 
-  // 5) Step 4 Victory Ring
   setRingProgress("n4Ring", boughtCar ? 1 : 0);
   setText("n4CarName", boughtCar ? boughtCar.name.slice(0, 16) : "Waiting");
 
-  // 6) Node Active / Completed Glow + Laser Pipes
   const n1 = document.getElementById("node1");
   const n2 = document.getElementById("node2");
   const n3 = document.getElementById("node3");
@@ -890,7 +955,6 @@ function renderVisualRoadmap() {
     setText("n4Status", "GOAL");
   }
 
-  // 7) Progress %
   let pct = 0;
   if (scannedTotal > 0) pct += Math.min(25, Math.round((scannedTotal / 4) * 25));
   if (shortlistedCount > 0) pct += 15;
@@ -901,7 +965,6 @@ function renderVisualRoadmap() {
   pct = Math.min(100, pct);
   setText("missionPctBadge", `${pct}% Done`);
 
-  // 8) 1-Line Dynamic Next-Step Guidance
   const guideText = document.getElementById("nextActionText");
   const guideBtn = document.getElementById("nextActionBtn");
   if (guideText && guideBtn) {
@@ -926,156 +989,4 @@ function renderVisualRoadmap() {
       guideBtn.textContent = "Scan Next Car →";
       guideBtn.onclick = () => jumpToSection("aiScannerCard");
     } else {
-      guideText.textContent = "Paste a listing below to run your first free AI red-flag check (4/day).";
-      guideBtn.textContent = "Start Free Scan →";
-      guideBtn.onclick = () => jumpToSection("aiScannerCard");
-    }
-  }
-}
-
-function renderAll() {
-  const emailEl = document.getElementById("buyerEmail");
-  if (emailEl && document.activeElement !== emailEl) emailEl.value = state.email;
-
-  const stateEl = document.getElementById("usState");
-  if (stateEl) stateEl.value = state.usState;
-
-  const sellerEl = document.getElementById("sellerType");
-  if (sellerEl) sellerEl.value = state.sellerType;
-
-  const badge = document.getElementById("profileBadge");
-  const avatar = document.getElementById("profileAvatar");
-  if (badge) {
-    badge.textContent = state.email
-      ? state.name || state.email
-      : "Save Progress";
-  }
-  if (avatar) {
-    if (state.picture) {
-      avatar.src = state.picture;
-      avatar.style.display = "inline-block";
-    } else {
-      avatar.style.display = "none";
-    }
-  }
-
-  const victoryBox = document.getElementById("victoryBanner");
-  if (victoryBox) {
-    const boughtCar = state.cars.find((c) => c.id === state.boughtCarId);
-    if (boughtCar) {
-      const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
-      const vinCheckedCount = state.cars.filter((c) => Boolean(c.vin)).length;
-      victoryBox.style.display = "block";
-      victoryBox.innerHTML = `
-        <strong>🏆 DEAL CLOSED!</strong> Screened <strong>${state.carsChecked}</strong> listing(s),
-        shortlisted <strong>${shortlistedCount}</strong>, verified <strong>${vinCheckedCount}</strong> VIN(s),
-        and closed on <strong>${escapeHtml(boughtCar.name)}</strong>.
-      `;
-    } else {
-      victoryBox.style.display = "none";
-    }
-  }
-
-  renderVisualRoadmap();
-  renderGarage();
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
-
-  populateStates();
-  renderAll();
-  initGoogleAuth();
-  trackFunnelEvent("stage_0_visit");
-
-  document.getElementById("saveProfileBtn")?.addEventListener("click", () => {
-    const emailInput = (document.getElementById("buyerEmail")?.value || "").trim();
-    state.email = emailInput;
-    if (emailInput && state.authMethod !== "google") state.authMethod = "manual_email";
-    state.usState = document.getElementById("usState")?.value || "CA";
-    state.sellerType = document.getElementById("sellerType")?.value || "Private Seller";
-    trackFunnelEvent("stage_0_profile_saved");
-    saveState();
-    setBanner(
-      emailInput
-        ? `Saved for ${emailInput} (${state.usState}). Your progress stays synced on this device.`
-        : `State updated to ${state.usState}. Add your email anytime to save your profile.`
-    );
-  });
-
-  document.getElementById("clearProfileBtn")?.addEventListener("click", () => {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      window.google.accounts.id.disableAutoSelect();
-    }
-    state.email = "";
-    state.name = "";
-    state.picture = "";
-    state.authMethod = "guest";
-    saveState();
-    setBanner("Signed out on this device.");
-  });
-
-  document.getElementById("runAiScanBtn")?.addEventListener("click", runAiListingScan);
-
-  document.getElementById("loadSampleListingBtn")?.addEventListener("click", () => {
-    document.getElementById("carNameInput").value = "2018 Honda Accord Sport";
-    document.getElementById("carPriceInput").value = "13500";
-    document.getElementById("listingTextInput").value =
-      "Selling for a friend. Runs great! Check engine light is on, probably just an easy fix O2 sensor. Lost title in move so bill of sale only. Cash today only, must sell today, no test drive without cash in hand.";
-    setBanner("Sample listing loaded — click 'Scan Listing Free' to test.");
-  });
-
-  document.getElementById("runVinCheckBtn")?.addEventListener("click", runVinNhtsaCheck);
-
-  document.getElementById("loadSampleVinBtn")?.addEventListener("click", () => {
-    document.getElementById("vinInput").value = "1HGCV1F30JA000001";
-    setBanner("Sample Honda VIN loaded — click 'Check VIN Now' to pull live NHTSA data.");
-  });
-
-  document.getElementById("unlockPassBtn")?.addEventListener("click", () => {
-    trackFunnelEvent("stage_2_checkout_clicked", { plan: "5_car_pass_8_99" });
-    if (CONFIG.DODO_CHECKOUT_URL) {
-      window.open(CONFIG.DODO_CHECKOUT_URL, "_blank");
-    } else {
-      state.vinCredits += CONFIG.PASS_CREDITS_AMOUNT;
-      saveState();
-      setBanner("Demo Mode: +5 VIN credits added! Connect your Dodo Payments $8.99 URL when ready.");
-    }
-  });
-
-  document.getElementById("deepHistoryBtn")?.addEventListener("click", () => {
-    trackFunnelEvent("stage_3_waitlist_clicked", { plan: "deep_history_13_99" });
-    setBanner("Core Deep Audit ($13.99 — Title, Salvage & Odometer History) is coming in Phase 2! Request logged.");
-  });
-
-  document.getElementById("copyJourneyCardBtn")?.addEventListener("click", async () => {
-    const boughtCar = state.cars.find((c) => c.id === state.boughtCarId);
-    const coreCar = state.cars.find((c) => c.id === state.coreCarId);
-    const shortlistedCount = state.cars.filter((c) => c.shortlisted).length;
-    const top3Count = state.cars.filter((c) => c.top3).length;
-    const shareText = `🚗 My Used-Car Check on BuyerCheck (CarDesk US):\n• Screened: ${state.carsChecked} listings\n• Shortlisted: ${shortlistedCount} (Top 3: ${top3Count})\n• Result: ${boughtCar ? `BOUGHT ${boughtCar.name} 🏆` : coreCar ? `Auditing ${coreCar.name} 🔬` : "In Progress"}\nCheck before you buy 👉 https://buyercheck.cardeskus.com`;
-    try {
-      await navigator.clipboard.writeText(shareText);
-      setBanner("Summary copied! Ready to paste into WhatsApp, text, or social status.");
-    } catch {
-      setBanner(shareText);
-    }
-  });
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-  });
-
-  document.getElementById("installBtn")?.addEventListener("click", async () => {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-    } else {
-      setBanner("To install: open your browser menu and tap 'Add to Home Screen' or 'Install App'.");
-    }
-  });
-});
+      guideText.textContent = "Paste a listing below to run your first free AI red

@@ -1,1067 +1,1113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#ff2e93" />
-  <meta name="description" content="BuyerCheck by CarDesk US — Used Car Risk, Red-Flag & Official U.S. NHTSA VIN Check for All 50 States + D.C." />
-  <title>BuyerCheck — CarDesk US | Used Car Risk & VIN Check</title>
+
+  <!-- Primary SEO Meta Tags -->
+  <title>Free Used Car Scam Checker &amp; NHTSA VIN Recall Lookup | BuyerCheck by CarDesk US</title>
+  <meta name="title" content="Free Used Car Scam Checker &amp; NHTSA VIN Recall Lookup | BuyerCheck by CarDesk US" />
+  <meta name="description" content="Avoid buying a lemon. Paste any Facebook Marketplace, Craigslist, or dealer listing for a free AI red-flag scam check, then run official U.S. NHTSA VIN recall &amp; complaint lookups across all 50 states." />
+  <meta name="keywords" content="free used car scam checker, used car listing red flag scanner, free NHTSA VIN recall lookup, Craigslist car scam check, Facebook Marketplace car buyer checklist, salvage flood title red flags, used car buying tool USA, CarDesk US BuyerCheck" />
+  <meta name="author" content="CarDesk US" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://buyercheck.cardeskus.com/" />
+
+  <!-- Theme & PWA -->
+  <meta name="theme-color" content="#07060d" />
+  <meta name="application-name" content="BuyerCheck by CarDesk US" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BuyerCheck" />
   <link rel="manifest" href="./manifest.json" />
-  <!-- Circular White-Background Neon Car SVG Favicon (Transparent Outside) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2300d4ff'/%3E%3Cstop offset='100%25' stop-color='%23ff00e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='47' fill='%23ffffff' stroke='url(%23g)' stroke-width='4'/%3E%3Cg transform='translate(8,20) scale(0.84)' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M 18 30 L 28 14 Q 50 9 72 14 L 82 30 Z' fill='%230f1b33' stroke='url(%23g)' stroke-width='3.2'/%3E%3Cpath d='M 8 48 L 11 34 Q 15 30 22 30 L 78 30 Q 85 30 89 34 L 92 48 Q 92 54 86 54 L 14 54 Q 8 54 8 48 Z' fill='%230c1428' stroke='url(%23g)' stroke-width='3.5'/%3E%3Cpath d='M 14 39 L 29 41 L 26 45 L 13 44 Z' fill='%2300f0ff'/%3E%3Cpath d='M 86 39 L 71 41 L 74 45 L 87 44 Z' fill='%23ff00e5'/%3E%3Crect x='35' y='42' width='30' height='7' rx='2' fill='none' stroke='url(%23g)' stroke-width='2.2'/%3E%3Crect x='14' y='54' width='15' height='7' rx='2' fill='%23090d1a' stroke='%2300d4ff' stroke-width='2.4'/%3E%3Crect x='71' y='54' width='15' height='7' rx='2' fill='%23090d1a' stroke='%23ff00e5' stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E" />
-  <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2300d4ff'/%3E%3Cstop offset='100%25' stop-color='%23ff00e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='47' fill='%23ffffff' stroke='url(%23g)' stroke-width='4'/%3E%3Cg transform='translate(8,20) scale(0.84)' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M 18 30 L 28 14 Q 50 9 72 14 L 82 30 Z' fill='%230f1b33' stroke='url(%23g)' stroke-width='3.2'/%3E%3Cpath d='M 8 48 L 11 34 Q 15 30 22 30 L 78 30 Q 85 30 89 34 L 92 48 Q 92 54 86 54 L 14 54 Q 8 54 8 48 Z' fill='%230c1428' stroke='url(%23g)' stroke-width='3.5'/%3E%3Cpath d='M 14 39 L 29 41 L 26 45 L 13 44 Z' fill='%2300f0ff'/%3E%3Cpath d='M 86 39 L 71 41 L 74 45 L 87 44 Z' fill='%23ff00e5'/%3E%3Crect x='35' y='42' width='30' height='7' rx='2' fill='none' stroke='url(%23g)' stroke-width='2.2'/%3E%3Crect x='14' y='54' width='15' height='7' rx='2' fill='%23090d1a' stroke='%2300d4ff' stroke-width='2.4'/%3E%3Crect x='71' y='54' width='15' height='7' rx='2' fill='%23090d1a' stroke='%23ff00e5' stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E" />
+
+  <!-- Open Graph (Facebook, WhatsApp, LinkedIn, Reddit, Pinterest, iMessage) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://buyercheck.cardeskus.com/" />
+  <meta property="og:site_name" content="CarDesk US — BuyerCheck AI" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="Don't Buy a Lemon — Free Used Car Red-Flag &amp; NHTSA VIN Checker" />
+  <meta property="og:description" content="Screen 10–15 used car listings free with AI red-flag detection, check official U.S. NHTSA VIN safety recalls &amp; complaints, and narrow down to 1 safe winner." />
+
+  <!-- X (Twitter) Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:url" content="https://buyercheck.cardeskus.com/" />
+  <meta name="twitter:title" content="Free Used Car Scam &amp; NHTSA VIN Recall Checker | BuyerCheck US" />
+  <meta name="twitter:description" content="Paste any used car ad to catch hidden title, salvage &amp; mechanical red flags free (4/day), then verify the 17-digit VIN with official U.S. NHTSA data." />
+
+  <!-- Structured Data (JSON-LD): WebApplication + FAQPage for Google Rich Results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "BuyerCheck by CarDesk US",
+        "url": "https://buyercheck.cardeskus.com/",
+        "description": "Free AI used-car listing red-flag scanner and official U.S. NHTSA VIN recall, specification, and owner complaint checker for buyers across all 50 U.S. states.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web, Android, iOS",
+        "browserRequirements": "Requires JavaScript",
+        "areaServed": {
+          "@type": "Country",
+          "name": "United States"
+        },
+        "creator": {
+          "@type": "Organization",
+          "name": "CarDesk US",
+          "url": "https://buyercheck.cardeskus.com/",
+          "email": "support@cardeskus.com"
+        },
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Free Daily AI Red-Flag Scanner",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "4 free AI listing red-flag scans per day plus 1 starter NHTSA VIN check credit."
+          },
+          {
+            "@type": "Offer",
+            "name": "5-Car VIN & NHTSA Pass",
+            "price": "8.99",
+            "priceCurrency": "USD",
+            "description": "One-time pass adding 5 official NHTSA VIN recall, complaint, and spec check credits with email dossiers."
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I check a Facebook Marketplace or Craigslist used car listing for scams for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Copy the seller's listing description or chat messages and paste them into BuyerCheck's Step 1 Free AI Red-Flag Scanner. It immediately flags title risks, curbstoning, payment scams, mileage issues, and downplayed mechanical defects, and gives you exact seller questions and a reply script."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the NHTSA VIN recall and complaint check official?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. BuyerCheck connects directly to official U.S. Department of Transportation NHTSA vPIC, Recalls, and Complaints public APIs to decode the 17-digit VIN, factory specs, open safety recalls, and owner complaint counts."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the biggest red flags when buying a used car from a private seller?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Top red flags include missing or delayed titles ('bill of sale only'), salvage or flood history without repair paperwork, refusal to allow a test drive or mechanic inspection, 'easy fix' check-engine claims, third-party curbstoning ('selling for a friend'), and high-pressure wire or Zelle deposit demands."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does BuyerCheck work in all 50 U.S. states?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. BuyerCheck supports buyers in all 50 U.S. states plus Washington, D.C., allowing you to save your state, track your Top 5 shortlist and Top 3 finalists, and email full pre-buy reports to your inbox."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why should I narrow 15 listings down to 5 VIN checks and 1 core car?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Running paid inspections or history reports on every ad wastes money. Screening 10 to 15 ads free with AI removes risky listings first, so you only spend VIN checks on your Top 5 serious contenders and book a mechanic pre-purchase inspection on your 1 Core Pick."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- Google 1-Click Sign-In -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     :root {
-      --bg-dark: #06050b;
-      --bg-card: rgba(16, 13, 29, 0.92);
-      --bg-card-soft: rgba(24, 20, 44, 0.82);
-      --neon-pink: #ff2e93;
-      --neon-cyan: #00f0ff;
-      --neon-violet: #9d4edd;
-      --neon-amber: #ffb703;
-      --neon-green: #00f59b;
-      --neon-red: #ff4d6d;
+      --bg-dark: #07060d;
+      --bg-card: #120f21;
+      --bg-elevated: #1a1530;
+      --border: #2a2247;
       --text-main: #f7f7ff;
-      --text-muted: #9e9bb8;
-      --radius-lg: 20px;
-      --radius-md: 14px;
+      --text-muted: #a6a3c2;
+      --neon-cyan: #00f0ff;
+      --neon-pink: #ff2e93;
+      --neon-purple: #9d4edd;
+      --neon-green: #00f59b;
+      --neon-amber: #ffb703;
+      --neon-red: #ff4d6d;
+      --radius: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
       background:
-        radial-gradient(circle at 12% 5%, rgba(255, 46, 147, 0.2), transparent 32%),
-        radial-gradient(circle at 88% 8%, rgba(0, 240, 255, 0.16), transparent 34%),
-        radial-gradient(circle at 50% 88%, rgba(157, 78, 221, 0.14), transparent 44%),
+        radial-gradient(circle at 12% 8%, rgba(0, 240, 255, 0.12), transparent 36%),
+        radial-gradient(circle at 88% 12%, rgba(255, 46, 147, 0.14), transparent 38%),
         var(--bg-dark);
       color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      line-height: 1.55;
       min-height: 100vh;
-      line-height: 1.5;
-      overflow-x: hidden;
+      padding-bottom: 64px;
     }
 
-    /* TOPBAR */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 60;
-      backdrop-filter: blur(16px);
-      background: rgba(7, 6, 14, 0.9);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 9px 18px;
-    }
+    a { color: var(--neon-cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-    .topbar-inner {
-      max-width: 1200px;
+    .wrap {
+      max-width: 1040px;
       margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Top Bar */
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
+      padding: 12px 16px;
+      background: rgba(18, 15, 33, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 10px;
+      z-index: 40;
+      margin-bottom: 16px;
     }
-
-    .brand-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-
-    .brand-logo-link {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.22));
-      transition: transform 0.18s ease, filter 0.18s ease;
-    }
-
-    .brand-logo-link:hover {
-      transform: translateY(-1px);
-      filter: drop-shadow(0 0 14px rgba(255, 0, 229, 0.4));
-    }
-
-    .brand-meta {
+    .brand {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      border-left: 1px solid rgba(255, 255, 255, 0.14);
-      padding-left: 12px;
+      align-items: center;
+      gap: 10px;
     }
-
-    .badge-neon {
-      font-size: 0.65rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(0, 240, 255, 0.13);
-      color: var(--neon-cyan);
-      border: 1px solid rgba(0, 240, 255, 0.35);
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      font-weight: 800;
-      width: fit-content;
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #07060d;
+      font-size: 0.95rem;
+      flex-shrink: 0;
     }
-
-    .badge-pink { background: rgba(255, 46, 147, 0.15); color: #ff85c0; border-color: rgba(255, 46, 147, 0.42); }
-    .badge-amber { background: rgba(255, 183, 3, 0.15); color: var(--neon-amber); border-color: rgba(255, 183, 3, 0.42); }
-    .badge-green { background: rgba(0, 245, 155, 0.15); color: var(--neon-green); border-color: rgba(0, 245, 155, 0.42); }
-
-    .brand-sub { font-size: 0.78rem; color: var(--text-muted); }
-
-    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-    .profile-chip {
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+    }
+    .brand-title span { color: var(--neon-pink); }
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .profile-pill {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      font-size: 0.76rem;
-      font-weight: 700;
       padding: 6px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: border-color 0.2s ease, background 0.2s ease;
-    }
-    .profile-chip:hover { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.1); }
-    .profile-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; display: none; }
-
-    .btn {
-      border: none;
-      border-radius: 11px;
-      padding: 9px 15px;
-      font-weight: 800;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: transform 0.16s ease, box-shadow 0.16s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-    }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-sm { padding: 6px 11px; font-size: 0.76rem; border-radius: 9px; }
-
-    .btn-install {
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-violet));
-      color: #fff;
-      box-shadow: 0 0 18px rgba(255, 46, 147, 0.38);
-    }
-    .btn-cyan {
-      background: linear-gradient(90deg, var(--neon-cyan), #3a86ff);
-      color: #06070d;
-      box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
-    }
-    .btn-amber {
-      background: linear-gradient(90deg, var(--neon-amber), #ff7b00);
-      color: #07060c;
-      box-shadow: 0 0 14px rgba(255, 183, 3, 0.28);
-    }
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.06);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .profile-pill img {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: none;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 18px 18px 56px; }
-
-    /* =========================================================
-       ULTRA-CLEAN COMPACT ROADMAP (GTA-NEON, ZERO CLUTTER)
-       ========================================================= */
-    .command-deck {
-      position: relative;
-      background:
-        linear-gradient(150deg, rgba(255, 46, 147, 0.12), rgba(12, 10, 24, 0.96) 44%, rgba(0, 240, 255, 0.09));
-      border: 1px solid rgba(255, 46, 147, 0.38);
-      border-radius: 22px;
-      padding: 18px 20px 16px;
-      margin-bottom: 18px;
-      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 18px 14px 12px;
     }
-
-    .command-deck::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 34px 34px;
-      pointer-events: none;
-    }
-
-    .deck-top {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .deck-kicker {
-      font-size: 0.69rem;
+    .hero-kicker {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 240, 255, 0.45);
+      background: rgba(0, 240, 255, 0.08);
+      color: var(--neon-cyan);
+      font-size: 0.72rem;
       font-weight: 800;
-      letter-spacing: 1.4px;
+      letter-spacing: 1px;
       text-transform: uppercase;
-      color: var(--neon-pink);
+      margin-bottom: 10px;
     }
-
-    .deck-title-block h1 {
-      font-size: clamp(1.32rem, 2.7vw, 1.9rem);
+    .hero h1 {
+      font-size: clamp(1.55rem, 3.6vw, 2.35rem);
       font-weight: 900;
       line-height: 1.18;
-      margin-top: 3px;
-    }
-
-    .deck-title-block h1 span {
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber), var(--neon-cyan));
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ffffff, #bdeeff, #ff8ac4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+    .hero p {
+      max-width: 720px;
+      margin: 0 auto;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
 
-    /* Compact Free Scan Battery HUD */
-    .energy-hud {
-      background: rgba(8, 7, 17, 0.85);
-      border: 1px solid rgba(0, 240, 255, 0.32);
+    /* Status & Victory Banners */
+    .status-banner {
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.07);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: #d9f9ff;
+      font-size: 0.86rem;
+      margin: 12px 0;
+    }
+    .victory-banner {
+      display: none;
+      padding: 14px 16px;
       border-radius: 14px;
-      padding: 9px 14px;
-      min-width: 235px;
+      background: linear-gradient(90deg, rgba(0, 245, 155, 0.16), rgba(0, 240, 255, 0.12));
+      border: 1px solid var(--neon-green);
+      color: #eafff7;
+      font-size: 0.92rem;
+      margin: 12px 0;
     }
 
-    .energy-top {
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 16px;
+      transition: box-shadow 0.3s ease;
+    }
+    .card-head {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      margin-bottom: 6px;
-    }
-
-    .energy-label {
-      font-size: 0.67rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--neon-cyan);
-    }
-
-    .battery-pips {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-      margin-bottom: 5px;
-    }
-
-    .pip {
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.09);
-      transition: all 0.3s ease;
-    }
-
-    .pip.charged {
-      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
-      box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
-    }
-
-    /* 4-Stage Slim Flowchart Pipeline */
-    .pipeline-flow {
-      position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: 1fr 38px 1fr 38px 1fr 38px 1fr;
-      align-items: stretch;
+      flex-wrap: wrap;
       margin-bottom: 12px;
     }
-
-    .pipe-node {
-      background: rgba(14, 11, 27, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 12px 13px;
-      cursor: pointer;
+    .card-head h2 {
+      font-size: 1.08rem;
+      font-weight: 850;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
       gap: 8px;
-      transition: transform 0.2s ease, border-color 0.22s ease, box-shadow 0.22s ease;
     }
 
-    .pipe-node:hover {
-      transform: translateY(-3px);
-      border-color: var(--neon-cyan);
-      box-shadow: 0 8px 22px rgba(0, 240, 255, 0.18);
+    .badge-neon {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.38);
+    }
+    .badge-pink {
+      color: #ff8bc5;
+      background: rgba(255, 46, 147, 0.12);
+      border-color: rgba(255, 46, 147, 0.45);
     }
 
-    .pipe-node.node-active {
-      border-color: var(--neon-pink);
-      box-shadow: 0 0 22px rgba(255, 46, 147, 0.24);
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-weight: 800;
+      font-size: 0.86rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+      color: var(--text-main);
     }
-
-    .pipe-node.node-done {
-      border-color: rgba(0, 245, 155, 0.58);
-      box-shadow: 0 0 18px rgba(0, 245, 155, 0.16);
+    .btn:active { transform: scale(0.98); }
+    .btn-sm { padding: 6px 11px; font-size: 0.78rem; border-radius: 8px; }
+    .btn-cyan {
+      background: linear-gradient(90deg, var(--neon-cyan), #3a86ff);
+      color: #06070d;
     }
+    .btn-pink {
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+      color: #ffffff;
+    }
+    .btn-amber {
+      background: linear-gradient(90deg, var(--neon-amber), #ff7b00);
+      color: #09070d;
+    }
+    .btn-install {
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+      color: #06070d;
+    }
+    .btn-ghost {
+      background: var(--bg-elevated);
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+    .btn-ghost:hover { border-color: var(--neon-cyan); }
 
-    .node-head {
+    /* Visual Roadmap */
+    .roadmap-bar {
       display: flex;
+      align-items: center;
       justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .battery-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .battery-pips {
+      display: flex;
+      gap: 4px;
+    }
+    .pip {
+      width: 14px;
+      height: 8px;
+      border-radius: 3px;
+      background: #282245;
+      border: 1px solid #3c3363;
+    }
+    .pip.charged {
+      background: var(--neon-green);
+      box-shadow: 0 0 8px rgba(0, 245, 155, 0.6);
+      border-color: var(--neon-green);
+    }
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: 1fr 22px 1fr 22px 1fr 22px 1fr;
       align-items: center;
       gap: 6px;
     }
-
-    .step-num {
-      font-size: 0.66rem;
-      font-weight: 900;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
-      text-transform: uppercase;
+    .step-node {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.25s ease, transform 0.2s ease;
     }
-
-    .node-visual { display: flex; align-items: center; gap: 11px; }
-
-    .ring-wrap { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
-    .ring-svg { width: 48px; height: 48px; transform: rotate(-90deg); }
-    .ring-bg { fill: none; stroke: rgba(255, 255, 255, 0.1); stroke-width: 4.5; }
-    .ring-fill {
+    .step-node:hover { transform: translateY(-2px); border-color: var(--neon-cyan); }
+    .step-node.node-active {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.22);
+    }
+    .step-node.node-done {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 16px rgba(0, 245, 155, 0.18);
+    }
+    .ring-box {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 6px;
+    }
+    .ring-box svg { transform: rotate(-90deg); width: 50px; height: 50px; }
+    .ring-bg { fill: none; stroke: #272044; stroke-width: 4.5; }
+    .ring-fg {
       fill: none;
+      stroke: var(--neon-cyan);
       stroke-width: 4.5;
       stroke-linecap: round;
       stroke-dasharray: 125.66;
       stroke-dashoffset: 125.66;
       transition: stroke-dashoffset 0.5s ease;
     }
-    .ring-center {
+    .ring-pink { stroke: var(--neon-pink); }
+    .ring-amber { stroke: var(--neon-amber); }
+    .ring-green { stroke: var(--neon-green); }
+    .ring-num {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 900;
     }
-
-    .node-title { font-size: 0.94rem; font-weight: 900; line-height: 1.2; }
-    .node-target { font-size: 0.74rem; color: var(--text-muted); margin-top: 2px; }
-
-    .slot-dots { display: flex; gap: 5px; align-items: center; min-height: 14px; }
-    .slot-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.11);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      transition: all 0.25s ease;
+    .node-title { font-size: 0.82rem; font-weight: 850; }
+    .node-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+    .node-status {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.64rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--neon-cyan);
     }
-    .slot-dot.filled-cyan { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); border-color: #fff; }
-    .slot-dot.filled-pink { background: var(--neon-pink); box-shadow: 0 0 8px var(--neon-pink); border-color: #fff; }
-    .slot-dot.filled-amber { background: var(--neon-amber); box-shadow: 0 0 8px var(--neon-amber); border-color: #fff; }
-
-    .node-foot {
+    .slot-row {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 7px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    /* Animated Laser Connectors */
-    .pipe-connector {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-    }
-
-    .connector-line {
-      width: 100%;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
-      border-radius: 99px;
-    }
-
-    .connector-line::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -60%;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, var(--neon-pink), var(--neon-cyan));
-      animation: laserFlow 1.9s linear infinite;
-    }
-
-    .pipe-connector.lit .connector-line {
-      background: rgba(0, 245, 155, 0.35);
-      box-shadow: 0 0 10px rgba(0, 245, 155, 0.45);
-    }
-
-    .connector-tag {
-      font-size: 0.58rem;
-      font-weight: 900;
-      color: var(--neon-amber);
+      gap: 4px;
       margin-top: 5px;
-      letter-spacing: 0.4px;
-      white-space: nowrap;
+    }
+    .slot-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2f2852;
+    }
+    .slot-dot.filled-cyan { background: var(--neon-cyan); }
+    .slot-dot.filled-pink { background: var(--neon-pink); }
+    .slot-dot.filled-amber { background: var(--neon-amber); }
+
+    .pipe {
+      height: 3px;
+      background: #292246;
+      border-radius: 999px;
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+    .pipe.lit {
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
     }
 
-    @keyframes laserFlow {
-      0% { left: -60%; }
-      100% { left: 110%; }
-    }
-
-    /* Single-Row Compact Next-Step Action Bar */
-    .next-step-bar {
-      position: relative;
-      z-index: 2;
+    .next-guide {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      background: rgba(8, 7, 17, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 13px;
-      padding: 9px 14px;
-    }
-
-    .next-step-left {
-      display: flex;
-      align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      font-size: 0.83rem;
+      font-size: 0.84rem;
     }
 
-    /* MAIN WORKSPACE CARDS */
-    .victory-banner {
-      display: none;
-      margin-bottom: 16px;
-      padding: 14px 18px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(90deg, rgba(0, 245, 155, 0.16), rgba(0, 240, 255, 0.14));
-      border: 1px solid rgba(0, 245, 155, 0.55);
-      font-size: 0.92rem;
+    /* Grids & Forms */
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
     }
-
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-lg);
-      padding: 18px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-      transition: box-shadow 0.3s ease;
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
     }
-
-    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-    .card-title { font-size: 1.04rem; font-weight: 800; }
-
-    .field-group { display: grid; gap: 10px; }
-    label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
-
+    label.field-label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
     input, select, textarea {
       width: 100%;
-      background: rgba(9, 8, 17, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 11px;
       padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0b0916;
       color: var(--text-main);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-family: inherit;
-      outline: none;
     }
-    textarea { min-height: 86px; resize: vertical; }
     input:focus, select:focus, textarea:focus {
+      outline: none;
       border-color: var(--neon-cyan);
       box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.14);
     }
+    textarea { min-height: 112px; resize: vertical; }
 
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    /* RESULTS */
+    /* Results & Flags */
     .result-panel {
       margin-top: 14px;
-      background: rgba(11, 9, 22, 0.94);
-      border: 1px solid rgba(0, 240, 255, 0.28);
-      border-radius: var(--radius-md);
       padding: 14px;
+      border-radius: 14px;
+      background: var(--bg-elevated);
+      border: 1px solid #352b5e;
     }
-    .result-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
     .verdict-pill {
       display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 900;
       padding: 4px 10px;
       border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 900;
       letter-spacing: 0.5px;
     }
-    .verdict-yes { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); border: 1px solid rgba(0, 245, 155, 0.45); }
-    .verdict-caution { background: rgba(255, 183, 3, 0.18); color: var(--neon-amber); border: 1px solid rgba(255, 183, 3, 0.45); }
-    .verdict-no { background: rgba(255, 77, 109, 0.2); color: var(--neon-red); border: 1px solid rgba(255, 77, 109, 0.5); }
-
+    .verdict-yes { background: rgba(0, 245, 155, 0.14); color: var(--neon-green); border: 1px solid var(--neon-green); }
+    .verdict-caution { background: rgba(255, 183, 3, 0.14); color: var(--neon-amber); border: 1px solid var(--neon-amber); }
+    .verdict-no { background: rgba(255, 77, 109, 0.16); color: var(--neon-red); border: 1px solid var(--neon-red); }
     .risk-meter { font-size: 0.82rem; color: var(--text-muted); }
-    .result-section { margin-top: 10px; }
-    .mini-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--neon-cyan); font-weight: 800; margin-bottom: 6px; }
-
+    .result-section { margin-top: 12px; }
+    .mini-label {
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      margin-bottom: 6px;
+    }
     .flag-row {
       display: flex;
-      gap: 9px;
       align-items: flex-start;
+      gap: 8px;
       padding: 8px 10px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.03);
       margin-bottom: 6px;
       font-size: 0.84rem;
     }
-    .sev-badge { font-size: 0.64rem; font-weight: 900; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
-    .sev-high { background: rgba(255, 77, 109, 0.22); color: var(--neon-red); }
-    .sev-medium { background: rgba(255, 183, 3, 0.2); color: var(--neon-amber); }
-    .sev-low { background: rgba(0, 245, 155, 0.2); color: var(--neon-green); }
-
-    .clean-list { padding-left: 18px; font-size: 0.84rem; display: grid; gap: 4px; }
+    .sev-badge {
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 0.66rem;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .sev-high { background: rgba(255, 77, 109, 0.22); color: #ff8ba0; }
+    .sev-medium { background: rgba(255, 183, 3, 0.2); color: #ffd166; }
+    .sev-low { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); }
+    .clean-list { padding-left: 18px; font-size: 0.84rem; color: #e1def5; }
+    .clean-list li { margin-bottom: 4px; }
     .script-box {
-      padding: 9px 12px;
+      padding: 10px 12px;
       border-left: 3px solid var(--neon-pink);
-      background: rgba(255, 46, 147, 0.08);
       border-radius: 8px;
-      font-size: 0.84rem;
+      background: rgba(255, 46, 147, 0.08);
       font-style: italic;
+      font-size: 0.84rem;
+      color: #ffeaf4;
     }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .spec-chip {
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #0d0a1a;
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+    }
+    .spec-chip span { display: block; color: var(--text-muted); font-size: 0.68rem; }
 
-    .specs-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-    .spec-chip { background: rgba(255, 255, 255, 0.04); border-radius: 10px; padding: 8px 10px; font-size: 0.78rem; }
-    .spec-chip span { display: block; font-size: 0.68rem; color: var(--text-muted); }
-
-    /* GARAGE BOARD */
+    /* Garage */
     .garage-card {
-      background: var(--bg-card-soft);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-md);
-      padding: 13px 15px;
-      margin-bottom: 9px;
-      transition: border-color 0.22s ease;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
     }
-    .garage-card.core-glow { border-color: var(--neon-amber); box-shadow: 0 0 18px rgba(255, 183, 3, 0.18); }
-    .garage-card.bought-glow { border-color: var(--neon-green); box-shadow: 0 0 22px rgba(0, 245, 155, 0.22); }
-    .garage-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .garage-card.core-glow { border-color: var(--neon-amber); box-shadow: 0 0 16px rgba(255, 183, 3, 0.18); }
+    .garage-card.bought-glow { border-color: var(--neon-green); box-shadow: 0 0 18px rgba(0, 245, 155, 0.22); }
+    .garage-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     .garage-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .tag-inline {
-      font-size: 0.64rem;
-      font-weight: 900;
-      padding: 3px 8px;
-      border-radius: 999px;
-      margin-left: 5px;
       display: inline-block;
+      margin-left: 5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 850;
     }
-    .tag-core { background: linear-gradient(90deg, var(--neon-amber), #ff7b00); color: #07060c; }
-    .tag-bought { background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)); color: #07060c; }
+    .tag-core { background: rgba(255, 183, 3, 0.18); color: var(--neon-amber); }
+    .tag-bought { background: rgba(0, 245, 155, 0.18); color: var(--neon-green); }
 
-    /* PRICING PLANS */
-    .plans-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
-    .tier-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.11);
-      border-radius: var(--radius-lg);
-      padding: 18px;
+    /* Pricing */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .price-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
+      gap: 12px;
     }
-    .tier-card.popular { border-color: var(--neon-pink); box-shadow: 0 0 26px rgba(255, 46, 147, 0.18); }
-    .popular-tag {
-      position: absolute;
-      top: -10px;
-      right: 16px;
-      background: linear-gradient(90deg, var(--neon-pink), var(--neon-amber));
-      color: #08070d;
-      font-size: 0.66rem;
+    .price-card.featured {
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 22px rgba(255, 46, 147, 0.18);
+    }
+    .price-tag {
+      font-size: 1.65rem;
       font-weight: 900;
-      padding: 3px 10px;
-      border-radius: 999px;
-      letter-spacing: 0.6px;
+      margin: 6px 0;
     }
-    .tier-price { font-size: 1.85rem; font-weight: 900; margin: 8px 0 4px; }
-    .tier-price span { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
-    .tier-list { list-style: none; display: grid; gap: 6px; margin: 10px 0 16px; font-size: 0.84rem; color: var(--text-muted); }
-    .tier-list li::before { content: "✓ "; color: var(--neon-cyan); font-weight: 900; }
+    .price-tag span { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
-    /* PROFILE BOX */
-    .google-auth-box {
-      padding: 12px;
+    /* SEO Guide & FAQ (Clean Collapsible) */
+    .faq-item {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px dashed rgba(0, 240, 255, 0.28);
-      margin-bottom: 10px;
+      padding: 11px 14px;
+      margin-bottom: 8px;
     }
-    #googleSignInBtnWrap { display: flex; align-items: center; min-height: 38px; }
-
-    .status-banner {
-      padding: 9px 13px;
-      border-radius: 11px;
-      background: rgba(0, 240, 255, 0.08);
-      border: 1px solid rgba(0, 240, 255, 0.24);
-      color: var(--text-main);
-      font-size: 0.83rem;
+    .faq-item summary {
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.9rem;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: "+";
+      color: var(--neon-cyan);
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+    .faq-item[open] summary::after { content: "−"; }
+    .faq-item p {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
 
-    /* FLOATING LIVE TOAST FEEDBACK */
+    /* Footer */
+    footer {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: #0b0916;
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .footer-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 8px 0 10px;
+    }
+
+    /* Toast */
     .toast {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 90;
-      max-width: 390px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: rgba(12, 10, 25, 0.96);
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(90px);
+      background: #17122b;
       border: 1px solid var(--neon-cyan);
-      color: var(--text-main);
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 12px;
       font-size: 0.84rem;
-      font-weight: 600;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 240, 255, 0.25);
-      opacity: 0;
-      transform: translateY(16px);
-      pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+      transition: transform 0.3s ease;
+      z-index: 90;
+      max-width: 92vw;
+      text-align: center;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
-    .footer-note {
-      margin-top: 18px;
-      padding: 14px 16px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      font-size: 0.78rem;
+    @media (max-width: 820px) {
+      .roadmap-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .pipe { display: none; }
+      .two-col, .pricing-grid, .specs-grid { grid-template-columns: 1fr; }
     }
-
-    /* RESPONSIVE */
-    @media (max-width: 1020px) {
-      .pipeline-flow { grid-template-columns: 1fr; }
-      .pipe-connector { height: 30px; flex-direction: row; gap: 8px; }
-      .connector-line { width: 3px; height: 100%; }
-      .connector-line::after {
-        left: 0;
-        top: -60%;
-        width: 100%;
-        height: 60%;
-        background: linear-gradient(180deg, transparent, var(--neon-pink), var(--neon-cyan));
-        animation: laserFlowV 1.9s linear infinite;
-      }
-      @keyframes laserFlowV {
-        0% { top: -60%; }
-        100% { top: 110%; }
-      }
-      .connector-tag { margin-top: 0; }
-      .two-col, .plans-grid, .specs-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 620px) {
-      .brand-meta { border-left: none; padding-left: 0; }
-      .brand-logo-link svg { width: 175px; height: 40px; }
-      .toast { left: 16px; right: 16px; max-width: none; }
-    }
-
-    @media (max-width: 560px) {
-      .row-2 { grid-template-columns: 1fr; }
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-group">
-        <a href="./" class="brand-logo-link" aria-label="CarDesk US Home">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" width="215" height="48" role="img" aria-label="CarDesk US">
-            <defs>
-              <linearGradient id="navNeon" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#00f0ff"/>
-                <stop offset="100%" stop-color="#ff00e5"/>
-              </linearGradient>
-            </defs>
-            <!-- Car Icon -->
-            <g stroke-linecap="round" stroke-linejoin="round">
-              <path d="M 18 30 L 28 14 Q 50 9 72 14 L 82 30 Z" fill="#0f1b33" stroke="url(#navNeon)" stroke-width="2.5"/>
-              <path d="M 8 48 L 11 34 Q 15 30 22 30 L 78 30 Q 85 30 89 34 L 92 48 Q 92 54 86 54 L 14 54 Q 8 54 8 48 Z" fill="#0c1428" stroke="url(#navNeon)" stroke-width="2.8"/>
-              <path d="M 14 39 L 29 41 L 26 45 L 13 44 Z" fill="#00f0ff"/>
-              <path d="M 86 39 L 71 41 L 74 45 L 87 44 Z" fill="#ff00e5"/>
-              <rect x="35" y="42" width="30" height="7" rx="2" fill="none" stroke="url(#navNeon)" stroke-width="1.8"/>
-              <rect x="14" y="54" width="15" height="7" rx="2" fill="#090d1a" stroke="#00f0ff" stroke-width="2"/>
-              <rect x="71" y="54" width="15" height="7" rx="2" fill="#090d1a" stroke="#ff00e5" stroke-width="2"/>
-            </g>
-            <!-- Brand Text -->
-            <text x="106" y="45" font-family="'Segoe UI', Inter, Arial, sans-serif" font-weight="800" font-size="28" letter-spacing="0.4">
-              <tspan fill="#38f6ff">CarDesk </tspan><tspan fill="#ff2ae6">US</tspan>
-            </text>
-          </svg>
-        </a>
-        <div class="brand-meta">
-          <span class="badge-neon">BUYERCHECK AI</span>
-          <div class="brand-sub">Used Car Risk &amp; VIN Check</div>
+  <div class="wrap">
+    <!-- Sticky Header -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">BC</div>
+        <div>
+          <div class="brand-title">BuyerCheck <span>CarDesk US</span></div>
+          <div class="brand-sub">Used Car Scam Scanner &amp; U.S. NHTSA VIN Check (50 States + D.C.)</div>
         </div>
       </div>
-
       <div class="top-actions">
-        <button id="profileChipBtn" class="profile-chip" type="button" onclick="jumpToSection('profileCard')">
-          <img id="profileAvatar" class="profile-avatar" alt="Profile" />
+        <button type="button" id="installBtn" class="btn btn-install btn-sm">Install App</button>
+        <button type="button" class="profile-pill" onclick="jumpToSection('profileCard')">
+          <img id="profileAvatar" alt="Buyer profile avatar" />
           <span id="profileBadge">Save Progress</span>
         </button>
-        <button id="installBtn" class="btn btn-install" type="button">Install App</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="container">
-    <!-- =========================================================
-         ULTRA-CLEAN COMPACT 4-STEP ROADMAP (15 -> 5 -> 3 -> 1)
-         ========================================================= -->
-    <section class="command-deck" aria-label="4-Step Car Buying Roadmap">
-      <div class="deck-top">
-        <div class="deck-title-block">
-          <div class="deck-kicker">ALL 50 U.S. STATES + D.C. • 4-STEP GAME PLAN</div>
-          <h1>Don't Buy a Lemon. <span>Narrow 15 Cars Down to 1.</span></h1>
-        </div>
+    <main>
+      <!-- Hero -->
+      <section class="hero" aria-label="Introduction">
+        <div class="hero-kicker">All 50 U.S. States • Free AI Red-Flag Scan + Official NHTSA VIN Data</div>
+        <h1>Check Used Car Listings for Scams &amp; Safety Recalls Before You Buy</h1>
+        <p>
+          Stop wasting money on salvage, flood, or curbstoned cars from Facebook Marketplace, Craigslist, or local lots.
+          Screen 10–15 ads free with AI, verify your Top 5 VINs with official U.S. NHTSA records, and close on 1 safe car.
+        </p>
+      </section>
 
-        <div class="energy-hud">
-          <div class="energy-top">
-            <span class="energy-label">⚡ Free Daily Scans</span>
-            <strong id="freeScansLeftText" style="font-size:0.82rem; color:var(--neon-green);">4 / 4 Left</strong>
-          </div>
-          <div id="batteryPips" class="battery-pips">
-            <div class="pip charged"></div>
-            <div class="pip charged"></div>
-            <div class="pip charged"></div>
-            <div class="pip charged"></div>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted);">
-            <span>Resets every 24h</span>
-            <span id="missionPctBadge" style="color:var(--neon-pink); font-weight:800;">0% Done</span>
-          </div>
-        </div>
+      <div id="statusBanner" class="status-banner" role="status" aria-live="polite">
+        Ready: Start with a free AI listing red-flag scan (4/day) or verify a 17-digit VIN with official NHTSA data.
       </div>
+      <div id="victoryBanner" class="victory-banner" role="status"></div>
 
-      <!-- 4-STAGE 1-GLANCE VISUAL PIPELINE -->
-      <div class="pipeline-flow">
-        <!-- STEP 1 -->
-        <div id="node1" class="pipe-node node-active" onclick="jumpToSection('aiScannerCard')">
-          <div class="node-head">
-            <span class="step-num">STEP 1</span>
-            <span id="n1Status" class="badge-neon">FREE • 4/DAY</span>
+      <!-- Interactive 4-Step Mission Roadmap -->
+      <section class="card" aria-label="4-Step Used Car Buying Progress">
+        <div class="roadmap-bar">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <strong style="font-size:0.95rem;">Your 4-Step Used-Car Game Plan (15 → 5 → 3 → 1)</strong>
+            <span id="missionPctBadge" class="badge-neon">0% Done</span>
           </div>
-          <div class="node-visual">
-            <div class="ring-wrap">
-              <svg class="ring-svg" viewBox="0 0 48 48">
+          <div class="battery-wrap">
+            <span>Free AI Scans Today:</span>
+            <span id="freeScansLeftText" style="color:var(--neon-green);">4 / 4 Left</span>
+            <div id="batteryPips" class="battery-pips" aria-label="Remaining free scans"></div>
+          </div>
+        </div>
+
+        <div class="roadmap-grid">
+          <div id="node1" class="step-node node-active" onclick="jumpToSection('aiScannerCard')">
+            <div class="ring-box">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
                 <circle class="ring-bg" cx="24" cy="24" r="20"></circle>
-                <circle id="n1Ring" class="ring-fill" cx="24" cy="24" r="20" stroke="#00f0ff"></circle>
+                <circle id="n1Ring" class="ring-fg" cx="24" cy="24" r="20"></circle>
               </svg>
-              <div id="n1Count" class="ring-center">0/10</div>
+              <div id="n1Count" class="ring-num">0/10</div>
             </div>
-            <div>
-              <div class="node-title">Scout Listings</div>
-              <div class="node-target">Filter 10–15 cars</div>
-            </div>
+            <div class="node-title">1. Scout Listings</div>
+            <div id="n1Sub" class="node-meta">0 Scanned</div>
+            <span id="n1Status" class="node-status">FREE • 4/DAY</span>
           </div>
-          <div class="node-foot">
-            <span id="n1Sub">0 Scanned</span>
-            <span style="color:var(--neon-cyan);">Scan →</span>
-          </div>
-        </div>
 
-        <div id="pipe1" class="pipe-connector">
-          <div class="connector-line"></div>
-          <div class="connector-tag">PICK 5</div>
-        </div>
+          <div id="pipe1" class="pipe"></div>
 
-        <!-- STEP 2 -->
-        <div id="node2" class="pipe-node" onclick="jumpToSection('vinScannerCard')">
-          <div class="node-head">
-            <span class="step-num">STEP 2</span>
-            <span id="n2Status" class="badge-neon badge-pink">$8.99 PASS</span>
-          </div>
-          <div class="node-visual">
-            <div class="ring-wrap">
-              <svg class="ring-svg" viewBox="0 0 48 48">
+          <div id="node2" class="step-node" onclick="jumpToSection('vinScannerCard')">
+            <div class="ring-box">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
                 <circle class="ring-bg" cx="24" cy="24" r="20"></circle>
-                <circle id="n2Ring" class="ring-fill" cx="24" cy="24" r="20" stroke="#ff2e93"></circle>
+                <circle id="n2Ring" class="ring-fg ring-pink" cx="24" cy="24" r="20"></circle>
               </svg>
-              <div id="n2Count" class="ring-center">0/5</div>
+              <div id="n2Count" class="ring-num">0/5</div>
             </div>
-            <div>
-              <div class="node-title">Verify 5 VINs</div>
-              <div class="node-target">NHTSA recalls &amp; specs</div>
-            </div>
+            <div class="node-title">2. NHTSA VINs</div>
+            <div id="n2Credits" class="node-meta">1 Credit</div>
+            <div id="n2Slots" class="slot-row"></div>
+            <span id="n2Status" class="node-status">$8.99 PASS</span>
           </div>
-          <div id="n2Slots" class="slot-dots">
-            <span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot"></span>
-          </div>
-          <div class="node-foot">
-            <span id="n2Credits">1 Free Credit</span>
-            <span style="color:#ff85c0;">Check VIN →</span>
-          </div>
-        </div>
 
-        <div id="pipe2" class="pipe-connector">
-          <div class="connector-line"></div>
-          <div class="connector-tag">TOP 3</div>
-        </div>
+          <div id="pipe2" class="pipe"></div>
 
-        <!-- STEP 3 -->
-        <div id="node3" class="pipe-node" onclick="jumpToSection('garageCard')">
-          <div class="node-head">
-            <span class="step-num">STEP 3</span>
-            <span id="n3Status" class="badge-neon badge-amber">1 CORE PICK</span>
-          </div>
-          <div class="node-visual">
-            <div class="ring-wrap">
-              <svg class="ring-svg" viewBox="0 0 48 48">
+          <div id="node3" class="step-node" onclick="jumpToSection('garageCard')">
+            <div class="ring-box">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
                 <circle class="ring-bg" cx="24" cy="24" r="20"></circle>
-                <circle id="n3Ring" class="ring-fill" cx="24" cy="24" r="20" stroke="#ffb703"></circle>
+                <circle id="n3Ring" class="ring-fg ring-amber" cx="24" cy="24" r="20"></circle>
               </svg>
-              <div id="n3Count" class="ring-center">0/3</div>
+              <div id="n3Count" class="ring-num">0/3</div>
             </div>
-            <div>
-              <div class="node-title">Core Deep Audit</div>
-              <div class="node-target">Top 3 → Pick 1</div>
-            </div>
+            <div class="node-title">3. Top 3 → 1 Core</div>
+            <div id="n3CoreLabel" class="node-meta">Core: None</div>
+            <div id="n3Slots" class="slot-row"></div>
+            <span id="n3Status" class="node-status">1 CORE PICK</span>
           </div>
-          <div id="n3Slots" class="slot-dots">
-            <span class="slot-dot"></span><span class="slot-dot"></span><span class="slot-dot"></span>
-          </div>
-          <div class="node-foot">
-            <span id="n3CoreLabel">Core: None</span>
-            <span style="color:var(--neon-amber);">Compare →</span>
-          </div>
-        </div>
 
-        <div id="pipe3" class="pipe-connector">
-          <div class="connector-line"></div>
-          <div class="connector-tag">BUY 1</div>
-        </div>
+          <div id="pipe3" class="pipe"></div>
 
-        <!-- STEP 4 -->
-        <div id="node4" class="pipe-node" onclick="jumpToSection('garageCard')">
-          <div class="node-head">
-            <span class="step-num">STEP 4</span>
-            <span id="n4Status" class="badge-neon badge-green">GOAL</span>
-          </div>
-          <div class="node-visual">
-            <div class="ring-wrap">
-              <svg class="ring-svg" viewBox="0 0 48 48">
+          <div id="node4" class="step-node" onclick="jumpToSection('garageCard')">
+            <div class="ring-box">
+              <svg viewBox="0 0 48 48" aria-hidden="true">
                 <circle class="ring-bg" cx="24" cy="24" r="20"></circle>
-                <circle id="n4Ring" class="ring-fill" cx="24" cy="24" r="20" stroke="#00f59b"></circle>
+                <circle id="n4Ring" class="ring-fg ring-green" cx="24" cy="24" r="20"></circle>
               </svg>
-              <div id="n4Count" class="ring-center">🏆</div>
+              <div class="ring-num">🏆</div>
             </div>
-            <div>
-              <div class="node-title">Buy With Proof</div>
-              <div class="node-target">Keys in hand</div>
-            </div>
-          </div>
-          <div class="node-foot">
-            <span id="n4CarName">Waiting</span>
-            <span style="color:var(--neon-green);">Finish →</span>
+            <div class="node-title">4. Safe Buy</div>
+            <div id="n4CarName" class="node-meta">Waiting</div>
+            <span id="n4Status" class="node-status">GOAL</span>
           </div>
         </div>
-      </div>
 
-      <!-- COMPACT 1-LINE NEXT STEP ACTION BAR -->
-      <div class="next-step-bar">
-        <div class="next-step-left">
-          <span class="badge-neon badge-amber">NEXT STEP</span>
+        <div class="next-guide">
           <span id="nextActionText">Paste a listing below to run your first free AI red-flag check (4/day).</span>
+          <button type="button" id="nextActionBtn" class="btn btn-cyan btn-sm">Start Free Scan →</button>
         </div>
-        <button id="nextActionBtn" type="button" class="btn btn-cyan btn-sm">Start Free Scan →</button>
-      </div>
-    </section>
+      </section>
 
-    <div id="victoryBanner" class="victory-banner"></div>
-
-    <!-- =========================================================
-         IMMEDIATE ACTION WORKSPACE (VISIBLE RIGHT ON FIRST SCREEN)
-         ========================================================= -->
-    <section class="two-col">
-      <div id="aiScannerCard" class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">1. Free AI Red-Flag Scan</h2>
-            <div class="brand-sub">Catch title traps, scam urgency &amp; hidden repair claims</div>
+      <!-- Step 1 & Step 2 Tools -->
+      <div class="two-col">
+        <!-- Step 1: Free AI Listing Red-Flag Scanner -->
+        <section id="aiScannerCard" class="card">
+          <div class="card-head">
+            <h2>Step 1: Free AI Red-Flag Scanner</h2>
+            <span class="badge-neon">4 Free / Day</span>
           </div>
-          <span class="badge-neon">4 FREE / DAY</span>
-        </div>
-        <div class="field-group">
-          <div class="row-2">
+          <p class="brand-sub" style="margin-bottom:12px;">
+            Paste text from Facebook Marketplace, Craigslist, OfferUp, or seller texts to catch title traps, hidden defects, and scam patterns.
+          </p>
+
+          <div class="form-grid">
             <div>
-              <label for="carNameInput">Year, Make &amp; Model</label>
-              <input id="carNameInput" type="text" placeholder="e.g. 2019 Toyota Camry SE" />
+              <label class="field-label" for="carNameInput">Vehicle (Year / Make / Model)</label>
+              <input id="carNameInput" type="text" placeholder="e.g., 2019 Honda Civic EX" />
             </div>
             <div>
-              <label for="carPriceInput">Asking Price ($)</label>
-              <input id="carPriceInput" type="number" placeholder="e.g. 16500" />
+              <label class="field-label" for="carPriceInput">Asking Price ($)</label>
+              <input id="carPriceInput" type="number" min="0" placeholder="e.g., 14500" />
             </div>
           </div>
+
+          <div style="margin-bottom:12px;">
+            <label class="field-label" for="listingTextInput">Seller Listing Description or Chat Messages</label>
+            <textarea id="listingTextInput" placeholder="Paste the full ad description, title notes, check-engine comments, or seller replies..."></textarea>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" id="runAiScanBtn" class="btn btn-pink">Scan Listing Free</button>
+            <button type="button" id="loadSampleListingBtn" class="btn btn-ghost">Try Sample Scam Ad</button>
+          </div>
+
+          <div id="aiResultBox"></div>
+        </section>
+
+        <!-- Step 2: Official U.S. NHTSA VIN Check -->
+        <section id="vinScannerCard" class="card">
+          <div class="card-head">
+            <h2>Step 2: Official U.S. NHTSA VIN Check</h2>
+            <span class="badge-neon badge-pink">Live DOT API</span>
+          </div>
+          <p class="brand-sub" style="margin-bottom:12px;">
+            Enter the 17-character VIN from the listing or dashboard to pull factory specs, open safety recalls, and U.S. owner complaints.
+          </p>
+
+          <div style="margin-bottom:12px;">
+            <label class="field-label" for="vinInput">17-Character Vehicle Identification Number (VIN)</label>
+            <input id="vinInput" type="text" maxlength="17" placeholder="e.g., 1HGCV1F30JA000001" style="text-transform:uppercase; letter-spacing:1px;" />
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" id="runVinCheckBtn" class="btn btn-cyan">Check VIN Now</button>
+            <button type="button" id="loadSampleVinBtn" class="btn btn-ghost">Load Sample Honda VIN</button>
+          </div>
+
+          <div id="vinResultBox"></div>
+        </section>
+      </div>
+
+      <!-- Step 3: My Garage Showdown -->
+      <section id="garageCard" class="card">
+        <div class="card-head">
+          <h2>Step 3: My Garage Showdown (Top 5 → Top 3 → 1 Core Winner)</h2>
+          <button type="button" id="copyJourneyCardBtn" class="btn btn-ghost btn-sm">Share Journey Summary</button>
+        </div>
+        <div id="garageList"></div>
+      </section>
+
+      <!-- Buyer Profile & Instant Report Email Sync -->
+      <section id="profileCard" class="card">
+        <div class="card-head">
+          <h2>Save Your Progress &amp; Get HTML Pre-Buy Reports by Email</h2>
+          <span class="badge-neon">Auto-Sync</span>
+        </div>
+
+        <div class="two-col">
           <div>
-            <label for="listingTextInput">Listing Description or Seller Messages</label>
-            <textarea id="listingTextInput" placeholder="Paste Facebook Marketplace, Craigslist, dealer text, or chat..."></textarea>
+            <div id="googleSignInBtnWrap" style="margin-bottom:8px;"></div>
+            <p id="googleAuthHint" class="brand-sub">Sign in with Google in 1 click or enter your email to receive formatted HTML reports.</p>
           </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="runAiScanBtn" class="btn btn-cyan" type="button">Scan Listing Free</button>
-            <button id="loadSampleListingBtn" class="btn btn-ghost" type="button">Try Sample Ad</button>
-          </div>
-        </div>
-        <div id="aiResultBox"></div>
-      </div>
-
-      <div id="vinScannerCard" class="card">
-        <div class="card-header">
           <div>
-            <h2 class="card-title">2. Official U.S. NHTSA VIN Check</h2>
-            <div class="brand-sub">Live federal VIN specs, open recalls &amp; owner complaints</div>
-          </div>
-          <span class="badge-neon badge-pink">LIVE GOVT DATA</span>
-        </div>
-        <div class="field-group">
-          <div>
-            <label for="vinInput">17-Character VIN</label>
-            <input id="vinInput" type="text" maxlength="17" placeholder="e.g. 1HGCV1F30JA000001" style="text-transform:uppercase; letter-spacing:1px;" />
-          </div>
-          <div class="brand-sub">
-            Includes <strong>1 free demo VIN credit</strong> so you can test live U.S. NHTSA safety data right now.
-          </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="runVinCheckBtn" class="btn btn-install" type="button">Check VIN Now</button>
-            <button id="loadSampleVinBtn" class="btn btn-ghost" type="button">Try Sample VIN</button>
-          </div>
-        </div>
-        <div id="vinResultBox"></div>
-      </div>
-    </section>
-
-    <!-- =========================================================
-         MY GARAGE SHORTLIST (5 -> TOP 3 -> 1 CORE WINNER)
-         ========================================================= -->
-    <section id="garageCard" class="card" style="margin-bottom:18px;">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">3. My Garage &amp; Final Showdown</h2>
-          <div class="brand-sub">Narrow your saved cars from Top 5 → Top 3 → 1 Core Winner</div>
-        </div>
-        <button id="copyJourneyCardBtn" class="btn btn-ghost btn-sm" type="button">Share Summary</button>
-      </div>
-      <div id="garageList"></div>
-    </section>
-
-    <!-- =========================================================
-         SIMPLE PRICING PLANS (CLEAN US COPY)
-         ========================================================= -->
-    <section id="pricingSection" class="plans-grid">
-      <div class="tier-card">
-        <div>
-          <span class="badge-neon">STEP 1 • FREE</span>
-          <div class="tier-price">$0 <span>/ 4 scans daily</span></div>
-          <ul class="tier-list">
-            <li>4 free AI red-flag checks every day</li>
-            <li>Seller questions &amp; walk-away script</li>
-            <li>Save &amp; shortlist your top picks</li>
-          </ul>
-        </div>
-        <button type="button" class="btn btn-ghost" onclick="jumpToSection('aiScannerCard')">Use Free Scans</button>
-      </div>
-
-      <div class="tier-card popular">
-        <div class="popular-tag">MOST POPULAR</div>
-        <div>
-          <span class="badge-neon badge-pink">STEP 2 • 5-CAR PASS</span>
-          <div class="tier-price">$8.99 <span>one-time</span></div>
-          <ul class="tier-list">
-            <li>5 official U.S. NHTSA VIN &amp; recall checks</li>
-            <li>Copy-ready report for Gmail or text</li>
-            <li>Compare 5 shortlisted cars down to Top 3</li>
-          </ul>
-        </div>
-        <button id="unlockPassBtn" class="btn btn-install" type="button">Get 5-Car Pass ($8.99)</button>
-      </div>
-
-      <div class="tier-card">
-        <div>
-          <span class="badge-neon badge-amber">STEP 3 • CORE AUDIT</span>
-          <div class="tier-price">$13.99 <span>/ 1 car (Soon)</span></div>
-          <ul class="tier-list">
-            <li>Deep title, salvage, flood &amp; mileage check</li>
-            <li>Built for your final 1 Core Car pick</li>
-            <li>Launching right after Phase 1 rollout</li>
-          </ul>
-        </div>
-        <button id="deepHistoryBtn" class="btn btn-amber" type="button">Notify Me</button>
-      </div>
-    </section>
-
-    <!-- =========================================================
-         SAVE PROGRESS / GMAIL AUTO-LOGIN
-         ========================================================= -->
-    <section id="profileCard" class="card">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Save Your Multi-Day Progress</h2>
-          <div class="brand-sub">Keep your scanned cars, VIN credits &amp; shortlist synced on this device</div>
-        </div>
-        <span class="badge-neon">GMAIL / EMAIL</span>
-      </div>
-      <div class="two-col" style="margin-bottom:0;">
-        <div>
-          <div class="google-auth-box">
-            <div id="googleSignInBtnWrap"></div>
-            <div id="googleAuthHint" class="brand-sub" style="margin-top:6px;">
-              1-Click Google Sign-In activates automatically once your Google Client ID is connected.
+            <div style="margin-bottom:10px;">
+              <label class="field-label" for="buyerEmail">Email for HTML Car Reports</label>
+              <input id="buyerEmail" type="email" placeholder="you@gmail.com" />
+            </div>
+            <div class="form-grid">
+              <div>
+                <label class="field-label" for="usState">Your U.S. State</label>
+                <select id="usState"></select>
+              </div>
+              <div>
+                <label class="field-label" for="sellerType">Buying From</label>
+                <select id="sellerType">
+                  <option value="Private Seller">Private Seller</option>
+                  <option value="Used Car Dealer">Used Car Dealer</option>
+                  <option value="Franchise Dealer">Franchise Dealer</option>
+                  <option value="Online Marketplace">Online Marketplace</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" id="saveProfileBtn" class="btn btn-cyan btn-sm">Save Profile</button>
+              <button type="button" id="clearProfileBtn" class="btn btn-ghost btn-sm">Sign Out</button>
             </div>
           </div>
-          <div id="statusBanner" class="status-banner">
-            Ready. Your checks and shortlist save automatically on this device.
-          </div>
         </div>
-        <div class="field-group">
-          <div>
-            <label for="buyerEmail">Email Address</label>
-            <input id="buyerEmail" type="email" placeholder="you@gmail.com" />
-          </div>
-          <div class="row-2">
+      </section>
+
+      <!-- Transparent Pricing -->
+      <section id="pricingSection" class="card">
+        <div class="card-head">
+          <h2>Simple Pay-As-You-Shop Pricing (Zero Subscriptions)</h2>
+          <span class="badge-neon badge-pink">No Auto-Renew</span>
+        </div>
+
+        <div class="pricing-grid">
+          <div class="price-card">
             <div>
-              <label for="usState">State (All 50 + D.C.)</label>
-              <select id="usState"></select>
+              <span class="badge-neon">STAGE 1</span>
+              <h3 style="margin-top:8px;">Free AI Scout</h3>
+              <div class="price-tag">$0 <span>/ forever</span></div>
+              <ul class="clean-list">
+                <li>4 free AI listing red-flag scans daily</li>
+                <li>Seller interrogation questions &amp; scripts</li>
+                <li>1 free starter NHTSA VIN check credit</li>
+                <li>My Garage shortlist tracker</li>
+              </ul>
             </div>
-            <div>
-              <label for="sellerType">Seller Type</label>
-              <select id="sellerType">
-                <option value="Private Seller">Private Seller</option>
-                <option value="Used Car Dealer">Used Car Dealer</option>
-                <option value="Online Marketplace">Online Marketplace</option>
-              </select>
-            </div>
+            <button type="button" class="btn btn-ghost" onclick="jumpToSection('aiScannerCard')">Start Scanning Free</button>
           </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button id="saveProfileBtn" class="btn btn-cyan" type="button">Save Profile</button>
-            <button id="clearProfileBtn" class="btn btn-ghost" type="button">Sign Out</button>
+
+          <div class="price-card featured">
+            <div>
+              <span class="badge-neon badge-pink">MOST POPULAR • STAGE 2</span>
+              <h3 style="margin-top:8px;">5-Car VIN &amp; NHTSA Pass</h3>
+              <div class="price-tag">$8.99 <span>one-time</span></div>
+              <ul class="clean-list">
+                <li>+5 Official U.S. NHTSA VIN recall &amp; complaint credits</li>
+                <li>Automated dark-neon HTML email dossiers</li>
+                <li>Side-by-side Top 5 → Top 3 comparison</li>
+                <li>Never expires — no monthly fee</li>
+              </ul>
+            </div>
+            <button type="button" id="unlockPassBtn" class="btn btn-pink">Unlock 5-Car Pass ($8.99)</button>
+          </div>
+
+          <div class="price-card">
+            <div>
+              <span class="badge-neon">STAGE 3 • PHASE 2</span>
+              <h3 style="margin-top:8px;">Core Deep History Audit</h3>
+              <div class="price-tag">$13.99 <span>per core car</span></div>
+              <ul class="clean-list">
+                <li>Designed for your #1 finalist before paying cash</li>
+                <li>Title brand, salvage/flood &amp; odometer audit</li>
+                <li>Pre-purchase mechanic inspection (PPI) checklist</li>
+              </ul>
+            </div>
+            <button type="button" id="deepHistoryBtn" class="btn btn-amber">Join Core Audit Waitlist</button>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <footer class="footer-note">
-      <strong>Disclaimer:</strong> BuyerCheck by CarDesk US provides self-help checklists, public U.S. NHTSA vehicle data, and AI-assisted screening for informational purposes only. It is not legal advice, financial advice, or a certified mechanical or title inspection. Always complete an independent mechanic pre-purchase inspection and verify title status with your state DMV.
+      <!-- Organic SEO Buyer's Guide & Collapsible FAQ -->
+      <section class="card" id="used-car-faq" aria-label="Used Car Buying Guide and Frequently Asked Questions">
+        <div class="card-head">
+          <h2>Used Car Buying Guide &amp; FAQ (All 50 U.S. States)</h2>
+          <span class="badge-neon">Free Buyer Guide</span>
+        </div>
+        <p class="brand-sub" style="margin-bottom:12px;">
+          Whether you are buying a used Honda, Toyota, Ford, or truck from Facebook Marketplace, Craigslist, OfferUp, or an independent lot, follow this pre-purchase checklist before handing over cash.
+        </p>
+
+        <details class="faq-item">
+          <summary>How do I spot a used car scam on Facebook Marketplace or Craigslist?</summary>
+          <p>Paste the listing description and seller messages into Step 1 above. Watch out for "bill of sale only" or missing titles, sellers claiming to be "selling for a friend" (curbstoning), urgent "cash today / leaving town" pressure, Zelle or gift-card deposits before seeing the car, and "easy fix" check-engine light excuses.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>What does an official U.S. NHTSA VIN check show?</summary>
+          <p>Step 2 connects directly to official U.S. Department of Transportation (NHTSA) APIs to decode the 17-digit VIN, confirm model year, trim, body style, engine, and assembly plant, and list active safety recalls plus owner complaint counts for that model year.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Why follow the 15 → 5 → 3 → 1 used-car buying funnel?</summary>
+          <p>Checking every car in person wastes weekends and inspection fees. Screening 10–15 listings free with AI eliminates obvious traps, letting you run VIN checks only on your Top 5 clean contenders, compare Top 3 finalists, and pay a mechanic for a pre-purchase inspection (PPI) on just your 1 Core Pick.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does a clean listing or NHTSA recall check replace a mechanic inspection (PPI)?</summary>
+          <p>No. Always match the dashboard VIN to the driver door-jamb sticker and the paper title in the seller's legal name, take a highway and city test drive, and have an independent mechanic perform a lift and OBD-II scan before signing.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Does BuyerCheck charge a recurring monthly subscription?</summary>
+          <p>No. You get 4 free AI red-flag scans every day plus 1 starter NHTSA VIN credit at $0. Optional credit packs like the $8.99 5-Car Pass are strictly one-time purchases with no recurring billing.</p>
+        </details>
+      </section>
+    </main>
+
+    <!-- Trust, Privacy & Terms Footer -->
+    <footer id="legal-footer">
+      <strong style="color:#ffffff;">BuyerCheck by CarDesk US</strong> — Independent Used-Car Risk &amp; Official U.S. NHTSA VIN Lookup Tool.
+      <div class="footer-links">
+        <a href="#aiScannerCard">Free AI Red-Flag Scanner</a>
+        <a href="#vinScannerCard">NHTSA VIN Recall Lookup</a>
+        <a href="#pricingSection">Pricing</a>
+        <a href="#used-car-faq">Buyer FAQ</a>
+        <a href="mailto:support@cardeskus.com">Support: support@cardeskus.com</a>
+      </div>
+      <p id="privacy" style="margin-bottom:6px;">
+        <strong>Privacy Notice:</strong> Your saved cars stay in your browser's local storage. When you sign in with Google or submit your email, we store your buyer progress and send requested HTML car reports from <code>support@cardeskus.com</code>. We never sell your personal email to car dealerships or spam brokers.
+      </p>
+      <p id="terms">
+        <strong>Terms &amp; Disclaimer:</strong> BuyerCheck provides self-help informational analysis and public U.S. NHTSA recall/complaint lookups. It is not legal advice, financial advice, a title guarantee, or a substitute for an in-person mechanical Pre-Purchase Inspection (PPI) and state DMV title verification.
+      </p>
     </footer>
-  </main>
+  </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js"></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>

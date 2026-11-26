@@ -1,11 +1,11 @@
 /* =========================================================
-   BuyerCheck — CarDesk US | Ultra-Clean US Engine (v2.3)
+   BuyerCheck — CarDesk US | Ultra-Clean US Engine (v2.4 LIVE)
    Live Google Sheets Backend + Auto HTML Emails + NHTSA APIs
-   Google 1-Click OAuth + Custom Domain + Dodo Return Ready
+   Google 1-Click OAuth + Custom Domain + Live Dodo Checkout
    ========================================================= */
 
 const CONFIG = {
-  APP_VERSION: "2.3.0",
+  APP_VERSION: "2.4.0",
   DAILY_FREE_AI_LIMIT: 4,
   STAGE1_TARGET_CARS: 10,
   STAGE2_TARGET_CARS: 5,
@@ -16,8 +16,8 @@ const CONFIG = {
   GOOGLE_CLIENT_ID: "553278071838-dm9hastmoarhbr7rh6ovtgrelbgtk8me.apps.googleusercontent.com",
   // 2) Connected Google Apps Script Backend & HTML Email Webhook
   BACKEND_WEBHOOK_URL: "https://script.google.com/macros/s/AKfycbyBApfT2_QreQEpULEA2dI2eB_G4a6Is0ozjy7k8mLLzLciGkKOuwzdP2p4YKob-8hY/exec",
-  // 3) Dodo Payments ($8.99 5-Car Pass) checkout URL (Approval ke baad yahan paste karein)
-  DODO_CHECKOUT_URL: ""
+  // 3) Live Dodo Payments ($8.99 5-Car VIN & NHTSA Pass) Checkout URL
+  DODO_CHECKOUT_URL: "https://checkout.dodopayments.com/buy/pdt_0NsnmRDtqpevvP0pVT67s?quantity=1&redirect_url=https%3A%2F%2Fbuyercheck.cardeskus.com%2F%3Fpass%3Dunlocked"
 };
 
 const US_STATES = [
@@ -116,6 +116,7 @@ const DEFAULT_STATE = {
   cars: [],
   coreCarId: null,
   boughtCarId: null,
+  processedPayments: [],
   funnelEvents: []
 };
 
@@ -149,6 +150,7 @@ function loadState() {
     }
     if (!Array.isArray(parsed.cars)) parsed.cars = [];
     if (!Array.isArray(parsed.funnelEvents)) parsed.funnelEvents = [];
+    if (!Array.isArray(parsed.processedPayments)) parsed.processedPayments = [];
     return parsed;
   } catch {
     return { ...DEFAULT_STATE };
@@ -215,14 +217,54 @@ function trackFunnelEvent(stage, detail = {}) {
 }
 
 /* =========================================================
-   DODO RETURN URL HANDLER (?pass=unlocked)
+   DODO PAYMENTS CHECKOUT & RETURN URL HANDLER (?pass=unlocked)
    ========================================================= */
+function startDodoCheckout() {
+  if (!CONFIG.DODO_CHECKOUT_URL) {
+    setBanner("Checkout link is being configured. Please try again shortly.");
+    return;
+  }
+
+  trackFunnelEvent("stage_2_checkout_clicked", { plan: "5_car_pass_8_99" });
+
+  let checkoutUrl = CONFIG.DODO_CHECKOUT_URL;
+  if (isValidEmail(state.email)) {
+    const sep = checkoutUrl.includes("?") ? "&" : "?";
+    checkoutUrl += `${sep}email=${encodeURIComponent(state.email)}`;
+  }
+
+  setBanner("Redirecting to secure Dodo Payments checkout ($8.99 one-time)...");
+  window.location.href = checkoutUrl;
+}
+
 function handlePaymentReturnParam() {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get("pass") === "unlocked") {
+      const status = (params.get("status") || "").toLowerCase();
+      if (status && status !== "succeeded" && status !== "active" && status !== "paid") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setBanner("Payment was not completed. No credits were charged or added.");
+        return;
+      }
+
+      const paymentId = params.get("payment_id") || "";
+      if (paymentId && state.processedPayments.includes(paymentId)) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      const returnedEmail = (params.get("email") || "").trim();
+      if (!state.email && isValidEmail(returnedEmail)) {
+        state.email = returnedEmail;
+      }
+
+      if (paymentId) state.processedPayments.push(paymentId);
       state.vinCredits += CONFIG.PASS_CREDITS_AMOUNT;
-      trackFunnelEvent("stage_2_pass_unlocked", { plan: "5_car_pass_8_99" });
+      trackFunnelEvent("stage_2_pass_unlocked", {
+        plan: "5_car_pass_8_99",
+        paymentId: paymentId || "direct_return"
+      });
       saveState();
       window.history.replaceState({}, document.title, window.location.pathname);
       setBanner(`Payment confirmed! +${CONFIG.PASS_CREDITS_AMOUNT} VIN credits added to your account.`);
@@ -407,7 +449,7 @@ function runAiListingScan() {
     walkAwayScript: lastAiDraft.walkAwayScript
   });
   saveState();
-  setBanner(`Scan done for "${carName}" (${verdict.code}).${CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday} free scans left today.`);
+  setBanner(`Scan done for "${carName}" (${verdict.code}). ${CONFIG.DAILY_FREE_AI_LIMIT - state.freeScansUsedToday} free scans left today.`);
 }
 
 function renderAiResult(draft, hits, verdict) {
@@ -422,12 +464,12 @@ function renderAiResult(draft, hits, verdict) {
           <span class="sev-badge sev-${h.severity.toLowerCase()}">${h.severity}</span>
           <div>
             <strong>${escapeHtml(h.title)}</strong>
-            <div class="brand-sub">${escapeHtml(h.detail)}</div>
+            <div class="muted-copy" style="margin-bottom:0; font-size:0.8rem;">${escapeHtml(h.detail)}</div>
           </div>
         </div>`
         )
         .join("")
-    : `<div class="flag-row"><span class="sev-badge sev-low">CLEAN</span><div><strong>No obvious scam or defect triggers in text</strong><div class="brand-sub">Still verify the 17-digit VIN and inspect in person.</div></div></div>`;
+    : `<div class="flag-row"><span class="sev-badge sev-low">CLEAN</span><div><strong>No obvious scam or defect triggers in text</strong><div class="muted-copy" style="margin-bottom:0; font-size:0.8rem;">Still verify the 17-digit VIN and inspect in person.</div></div></div>`;
 
   const questionsHtml = draft.questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
 
@@ -436,7 +478,7 @@ function renderAiResult(draft, hits, verdict) {
       <div class="result-head">
         <div>
           <div class="verdict-pill ${verdict.css}">${verdict.label}</div>
-          <h3 style="margin-top:6px; font-size:0.98rem;">${escapeHtml(draft.name)}${draft.price !== "N/A" ? `• $${escapeHtml(draft.price)}` : ""}</h3>
+          <h3 style="margin-top:6px; font-size:0.98rem;">${escapeHtml(draft.name)}${draft.price !== "N/A" ? ` • $${escapeHtml(draft.price)}` : ""}</h3>
         </div>
         <div class="risk-meter">Risk: <strong>${draft.riskScore}/100</strong></div>
       </div>
@@ -525,7 +567,8 @@ async function runVinNhtsaCheck() {
     const trim = info.Trim || info.Series || "Standard";
     const body = info.BodyClass || "N/A";
     const engine = [
-      info.EngineCylinders ? `${info.EngineCylinders} Cyl` : "", info.DisplacementL ? `${info.DisplacementL}L` : "",
+      info.EngineCylinders ? `${info.EngineCylinders} Cyl` : "",
+      info.DisplacementL ? `${info.DisplacementL}L` : "",
       info.FuelTypePrimary || ""
     ]
       .filter(Boolean)
@@ -540,7 +583,8 @@ async function runVinNhtsaCheck() {
     }
 
     const [recallsRes, complaintsRes] = await Promise.all([
-      fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null), fetch(`https://api.nhtsa.gov/complaints/complaintsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null)
+      fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null),
+      fetch(`https://api.nhtsa.gov/complaints/complaintsByVehicle?make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}&modelYear=${encodeURIComponent(year)}`).catch(() => null)
     ]);
 
     const recallsData = recallsRes && recallsRes.ok ? await recallsRes.json() : { results: [] };
@@ -558,7 +602,20 @@ async function runVinNhtsaCheck() {
     else if (complaints.length >= 40) riskScore += 12;
 
     const verdict = computeVerdict(riskScore);
-    const fullName = `${year}${make} ${model}`;  lastVinDraft = { id: "vin_" + Date.now(), name: fullName, price: "NHTSA Verified", vin: vinRaw, source: "Official U.S. NHTSA VIN Check", verdict: verdict.code, riskScore, recallsCount: recalls.length, complaintsCount: complaints.length, specs: { trim, body, engine, plant }, flags: recalls.slice(0, 4).map((r) => `Recall: ${r.Component || "Safety Component"}`),
+    const fullName = `${year} ${make} ${model}`;
+
+    lastVinDraft = {
+      id: "vin_" + Date.now(),
+      name: fullName,
+      price: "NHTSA Verified",
+      vin: vinRaw,
+      source: "Official U.S. NHTSA VIN Check",
+      verdict: verdict.code,
+      riskScore,
+      recallsCount: recalls.length,
+      complaintsCount: complaints.length,
+      specs: { trim, body, engine, plant },
+      flags: recalls.slice(0, 4).map((r) => `Recall: ${r.Component || "Safety Component"}`),
       questions: [
         recalls.length > 0
           ? `NHTSA lists ${recalls.length} safety recall(s) for this model year — have all recalls been completed at a dealer?`
@@ -598,7 +655,7 @@ async function runVinNhtsaCheck() {
             <span class="sev-badge sev-medium">RECALL</span>
             <div>
               <strong>${escapeHtml(r.Component || "Safety Recall")}</strong>
-              <div class="brand-sub">${escapeHtml((r.Summary \vert{}\vert{} "").slice(0, 155))}${(r.Summary || "").length > 155 ? "..." : ""}</div>
+              <div class="muted-copy" style="margin-bottom:0; font-size:0.8rem;">${escapeHtml((r.Summary || "").slice(0, 155))}${(r.Summary || "").length > 155 ? "..." : ""}</div>
             </div>
           </div>`
           )
@@ -612,7 +669,7 @@ async function runVinNhtsaCheck() {
             <div>
               <div class="verdict-pill ${verdict.css}">${verdict.label}</div>
               <h3 style="margin-top:6px; font-size:0.98rem;">${escapeHtml(fullName)} (${escapeHtml(trim)})</h3>
-              <div class="brand-sub">VIN: <strong>${escapeHtml(vinRaw)}</strong></div>
+              <div class="muted-copy" style="margin-bottom:0; font-size:0.8rem;">VIN: <strong>${escapeHtml(vinRaw)}</strong></div>
             </div>
             <div class="risk-meter">Recalls: <strong>${recalls.length}</strong> • Complaints: <strong>${complaints.length}</strong></div>
           </div>
@@ -624,7 +681,8 @@ async function runVinNhtsaCheck() {
           </div>
 
           <div class="result-section">
-            <div class="mini-label">U.S. NHTSA Safety Recalls (${recalls.length})</div>${recallCards}
+            <div class="mini-label">U.S. NHTSA Safety Recalls (${recalls.length})</div>
+            ${recallCards}
           </div>
 
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
@@ -690,14 +748,21 @@ function buildWorldClassReportText(car) {
     "==========================================",
     "CARDESK US — BUYERCHECK PRE-BUY REPORT",
     "==========================================",
-    `Buyer         : ${state.name ? `${state.name} (${state.email})` : state.email \vert{}\vert{} "Guest Buyer"} [${state.usState}]`,
-    `Vehicle       : ${car.name}`, `VIN           : ${car.vin || "Not entered yet"}`,
+    `Buyer         : ${state.name ? `${state.name} (${state.email})` : state.email || "Guest Buyer"} [${state.usState}]`,
+    `Vehicle       : ${car.name}`,
+    `VIN           : ${car.vin || "Not entered yet"}`,
     `Check Type    : ${car.source}`,
-    `Verdict       : ${car.verdict} (Risk Score:${car.riskScore}/100)`,
-    car.recallsCount !== null ? `NHTSA Data    : ${car.recallsCount} Recall(s) \vert{}${car.complaintsCount} Owner Complaint(s)` : "",
+    `Verdict       : ${car.verdict} (Risk Score: ${car.riskScore}/100)`,
+    car.recallsCount !== null ? `NHTSA Data    : ${car.recallsCount} Recall(s) | ${car.complaintsCount} Owner Complaint(s)` : "",
     "",
     "KEY FINDINGS:",
-    ...(car.flags && car.flags.length ? car.flags.map((f) => `• ${f}`) : ["• No major text/recall triggers flagged"]), "", "QUESTIONS FOR THE SELLER:", ...(car.questions \vert{}\vert{} []).map((q, i) => `${i + 1}. ${q}`), "", "REPLY / NEGOTIATION SCRIPT:", `"${car.walkAwayScript || ""}"`,
+    ...(car.flags && car.flags.length ? car.flags.map((f) => `• ${f}`) : ["• No major text/recall triggers flagged"]),
+    "",
+    "QUESTIONS FOR THE SELLER:",
+    ...(car.questions || []).map((q, i) => `${i + 1}. ${q}`),
+    "",
+    "REPLY / NEGOTIATION SCRIPT:",
+    `"${car.walkAwayScript || ""}"`,
     "",
     `Checked with BuyerCheck by CarDesk US — ${CONFIG.PUBLIC_SITE_URL}`,
     "Disclaimer: Self-help informational report, not legal advice or a certified inspection."
@@ -765,7 +830,8 @@ window.markCarBought = function (carId) {
   saveState();
   setBanner(
     isValidEmail(state.email)
-      ? `🏆 Congrats! "${car.name}" marked as Bought — Victory summary emailed to ${state.email}!` : `🏆 Congrats! "${car.name}" is marked as Bought.`
+      ? `🏆 Congrats! "${car.name}" marked as Bought — Victory summary emailed to ${state.email}!`
+      : `🏆 Congrats! "${car.name}" is marked as Bought.`
   );
 };
 
@@ -781,7 +847,7 @@ function renderGarage() {
   if (!container) return;
 
   if (!state.cars.length) {
-    container.innerHTML = `<div class="status-banner">No cars saved yet. Run a Free AI Scan or NHTSA VIN Check above — saved cars appear here so you can narrow Top 5 → Top 3 → 1 Winner.</div>`;
+    container.innerHTML = `<div class="status-banner" style="margin-bottom:0;">No cars saved yet. Run a Free AI Scan or NHTSA VIN Check above — saved cars appear here so you can narrow Top 5 → Top 3 → 1 Winner.</div>`;
     return;
   }
 
@@ -797,12 +863,13 @@ function renderGarage() {
       <div class="garage-card ${cardGlow}">
         <div class="garage-top">
           <div>
-            <span class="verdict-pill ${verdictClass}">${escapeHtml(car.verdict)}</span>${car.shortlisted ? `<span class="badge-neon" style="margin-left:5px;">★ TOP 5</span>` : ""}
+            <span class="verdict-pill ${verdictClass}">${escapeHtml(car.verdict)}</span>
+            ${car.shortlisted ? `<span class="badge-neon" style="margin-left:5px;">★ TOP 5</span>` : ""}
             ${car.top3 ? `<span class="badge-neon badge-pink" style="margin-left:5px;">🎯 TOP 3</span>` : ""}
             ${isCore ? `<span class="tag-inline tag-core">🔬 CORE PICK</span>` : ""}
             ${isBought ? `<span class="tag-inline tag-bought">🏆 BOUGHT</span>` : ""}
             <h4 style="margin-top:6px; font-size:0.95rem;">${escapeHtml(car.name)}</h4>
-            <div class="brand-sub">
+            <div class="muted-copy" style="margin-bottom:0; font-size:0.8rem;">
               ${car.vin ? `VIN: ${escapeHtml(car.vin)} • ` : ""}${escapeHtml(car.source)} • ${escapeHtml(car.createdAt)}${car.recallsCount !== null ? ` • Recalls: ${car.recallsCount}` : ""}
             </div>
           </div>
@@ -826,7 +893,7 @@ function renderGarage() {
 }
 
 /* =========================================================
-   COMPACT VISUAL ROADMAP LIVE UPDATER
+   VISUAL ROADMAP & PROFILE LIVE UPDATER
    ========================================================= */
 function setRingProgress(ringId, ratio) {
   const el = document.getElementById(ringId);
@@ -851,7 +918,7 @@ function renderVisualRoadmap() {
 
   const freeText = document.getElementById("freeScansLeftText");
   if (freeText) {
-    freeText.textContent = `${remainingFree} /${CONFIG.DAILY_FREE_AI_LIMIT} Left`;
+    freeText.textContent = `${remainingFree} / ${CONFIG.DAILY_FREE_AI_LIMIT} Left`;
     freeText.style.color = remainingFree === 0 ? "var(--neon-red)" : "var(--neon-green)";
   }
   const pipsWrap = document.getElementById("batteryPips");
@@ -863,7 +930,11 @@ function renderVisualRoadmap() {
 
   setRingProgress("n1Ring", Math.min(1, scannedTotal / CONFIG.STAGE1_TARGET_CARS));
   setText("n1Count", `${scannedTotal}/${CONFIG.STAGE1_TARGET_CARS}`);
-  setText("n1Sub", `${scannedTotal} Scanned`);  const stage2ActiveCount = Math.max(vinCheckedCount, Math.min(5, shortlistedCount)); setRingProgress("n2Ring", Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS)); setText("n2Count", `${vinCheckedCount}/5`);
+  setText("n1Sub", `${scannedTotal} Scanned`);
+
+  const stage2ActiveCount = Math.max(vinCheckedCount, Math.min(5, shortlistedCount));
+  setRingProgress("n2Ring", Math.min(1, stage2ActiveCount / CONFIG.STAGE2_TARGET_CARS));
+  setText("n2Count", `${vinCheckedCount}/5`);
   setText("n2Credits", `${state.vinCredits} Credit${state.vinCredits === 1 ? "" : "s"}`);
 
   const n2Slots = document.getElementById("n2Slots");
@@ -928,22 +999,232 @@ function renderVisualRoadmap() {
     p3?.classList.add("lit");
   } else if (top3Count > 0) {
     n3?.classList.add("node-active");
-    setText("n3Status", `${top3Count}/3 READY`); } else { setText("n3Status", "1 CORE PICK"); }  if (boughtCar) { n4?.classList.add("node-done"); setText("n4Status", "BOUGHT!"); } else if (coreCar) { n4?.classList.add("node-active"); setText("n4Status", "FINAL STEP"); } else { setText("n4Status", "GOAL"); }  let pct = 0; if (scannedTotal > 0) pct += Math.min(25, Math.round((scannedTotal / 4) * 25)); if (shortlistedCount > 0) pct += 15; if (vinCheckedCount > 0) pct += Math.min(25, Math.round((vinCheckedCount / 3) * 25)); if (top3Count > 0) pct += 10; if (coreCar) pct += 15; if (boughtCar) pct = 100; pct = Math.min(100, pct); setText("missionPctBadge", `${pct}% Done`);
+    setText("n3Status", `${top3Count}/3 READY`);
+  } else {
+    setText("n3Status", "FOR PPI");
+  }
+
+  if (boughtCar) {
+    n4?.classList.add("node-done");
+    setText("n4Status", "BOUGHT!");
+  } else if (coreCar) {
+    n4?.classList.add("node-active");
+    setText("n4Status", "FINAL STEP");
+  } else {
+    setText("n4Status", "GOAL");
+  }
+
+  let pct = 0;
+  if (scannedTotal > 0) pct += Math.min(25, Math.round((scannedTotal / 4) * 25));
+  if (shortlistedCount > 0) pct += 15;
+  if (vinCheckedCount > 0) pct += Math.min(25, Math.round((vinCheckedCount / 3) * 25));
+  if (top3Count > 0) pct += 10;
+  if (coreCar) pct += 15;
+  if (boughtCar) pct = 100;
+  pct = Math.min(100, pct);
+  setText("missionPctBadge", `${pct}% Done`);
 
   const guideText = document.getElementById("nextActionText");
   const guideBtn = document.getElementById("nextActionBtn");
   if (guideText && guideBtn) {
     if (boughtCar) {
-      guideText.textContent = `🏆 Deal closed on ${boughtCar.name} after screening${scannedTotal} car(s)!`;
+      guideText.textContent = `🏆 Deal closed on ${boughtCar.name} after screening ${scannedTotal} car(s)!`;
       guideBtn.textContent = "Share Summary →";
       guideBtn.onclick = () => document.getElementById("copyJourneyCardBtn")?.click();
     } else if (coreCar) {
-      guideText.textContent = `Core Pick locked (${coreCar.name}). Complete your mechanic check, then mark Bought.`;
+      guideText.textContent = `Core Pick locked (${coreCar.name}). Complete your mechanic PPI & title check, then mark Bought.`;
       guideBtn.textContent = "Open Garage →";
       guideBtn.onclick = () => jumpToSection("garageCard");
     } else if (vinCheckedCount > 0 || top3Count > 0) {
-      guideText.textContent = `${vinCheckedCount} VIN(s) checked & ${top3Count}/3 finalists. Pick your 1 Core Car in Garage.`;
-      guideBtn.textContent = "Pick 1 Core Car →";
+      guideText.textContent = `${vinCheckedCount} VIN(s) checked & ${top3Count}/3 finalists. Lock your #1 Core Car in Garage.`;
+      guideBtn.textContent = "Pick #1 Core Car →";
       guideBtn.onclick = () => jumpToSection("garageCard");
     } else if (shortlistedCount > 0) {
-      guideText.textContent = `${shortlistedCount} car(
+      guideText.textContent = `${shortlistedCount} car(s) shortlisted! Run an official U.S. NHTSA VIN check in Step 2.`;
+      guideBtn.textContent = "Check VIN Now →";
+      guideBtn.onclick = () => jumpToSection("vinScannerCard");
+    } else {
+      guideText.textContent = "Paste a Facebook Marketplace or Craigslist listing below to run your first free AI red-flag scan.";
+      guideBtn.textContent = "Start Free Scan →";
+      guideBtn.onclick = () => jumpToSection("aiScannerCard");
+    }
+  }
+
+  const victoryBanner = document.getElementById("victoryBanner");
+  if (victoryBanner) {
+    if (boughtCar) {
+      victoryBanner.style.display = "block";
+      victoryBanner.innerHTML = `🏆 <strong>Mission Accomplished:</strong> You screened ${scannedTotal} car(s) and closed safely on <strong>${escapeHtml(boughtCar.name)}</strong>${boughtCar.vin ? ` (VIN: ${escapeHtml(boughtCar.vin)})` : ""}!`;
+    } else {
+      victoryBanner.style.display = "none";
+    }
+  }
+}
+
+function renderProfile() {
+  const emailInput = document.getElementById("buyerEmail");
+  const stateSel = document.getElementById("usState");
+  const sellerSel = document.getElementById("sellerType");
+  const badge = document.getElementById("profileBadge");
+  const avatar = document.getElementById("profileAvatar");
+
+  if (emailInput && document.activeElement !== emailInput) emailInput.value = state.email || "";
+  if (stateSel) stateSel.value = state.usState || "CA";
+  if (sellerSel) sellerSel.value = state.sellerType || "Private Seller";
+
+  if (badge) {
+    badge.textContent = state.name
+      ? state.name.split(" ")[0]
+      : state.email
+      ? state.email.split("@")[0]
+      : "Save Progress";
+  }
+
+  if (avatar) {
+    if (state.picture) {
+      avatar.src = state.picture;
+      avatar.style.display = "inline-block";
+    } else {
+      avatar.style.display = "none";
+    }
+  }
+}
+
+function renderAll() {
+  renderVisualRoadmap();
+  renderGarage();
+  renderProfile();
+}
+
+/* =========================================================
+   PROFILE, SAMPLE DATA, SHARE, WAITLIST & PWA EVENTS
+   ========================================================= */
+function bindEvents() {
+  document.getElementById("runAiScanBtn")?.addEventListener("click", runAiListingScan);
+
+  document.getElementById("loadSampleListingBtn")?.addEventListener("click", () => {
+    const carEl = document.getElementById("carNameInput");
+    const priceEl = document.getElementById("carPriceInput");
+    const textEl = document.getElementById("listingTextInput");
+    if (carEl) carEl.value = "2018 Honda Accord Sport";
+    if (priceEl) priceEl.value = "8900";
+    if (textEl) {
+      textEl.value =
+        "Selling for a friend who is leaving country this weekend. Must sell today cash today! Runs great, check engine light is just an O2 sensor easy fix. Lost title so bill of sale only, no test drive without Zelle deposit first.";
+    }
+    setBanner("Sample scam ad loaded — click 'Scan Listing Free' to see AI red flags.");
+  });
+
+  document.getElementById("runVinCheckBtn")?.addEventListener("click", runVinNhtsaCheck);
+
+  document.getElementById("loadSampleVinBtn")?.addEventListener("click", () => {
+    const vinEl = document.getElementById("vinInput");
+    if (vinEl) vinEl.value = "1HGCV1F30JA000001";
+    setBanner("Sample Honda Accord VIN loaded — click 'Check VIN Now' to test official U.S. NHTSA data.");
+  });
+
+  document.getElementById("saveProfileBtn")?.addEventListener("click", () => {
+    const emailVal = (document.getElementById("buyerEmail")?.value || "").trim().toLowerCase();
+    const stateVal = document.getElementById("usState")?.value || "CA";
+    const sellerVal = document.getElementById("sellerType")?.value || "Private Seller";
+
+    if (emailVal && !isValidEmail(emailVal)) {
+      setBanner("Please enter a valid email address (e.g., name@gmail.com).");
+      return;
+    }
+
+    state.email = emailVal;
+    state.usState = stateVal;
+    state.sellerType = sellerVal;
+    if (emailVal && state.authMethod === "guest") state.authMethod = "manual_email";
+
+    trackFunnelEvent("stage_0_profile_saved");
+    saveState();
+    setBanner(
+      emailVal
+        ? `Profile saved for ${emailVal} (${stateVal}). HTML car reports will be sent to your inbox!`
+        : `State & seller preferences saved (${stateVal}).`
+    );
+  });
+
+  document.getElementById("clearProfileBtn")?.addEventListener("click", () => {
+    state.email = "";
+    state.name = "";
+    state.picture = "";
+    state.authMethod = "guest";
+    saveState();
+    setBanner("Signed out from profile sync. Your saved garage stays private in this browser.");
+  });
+
+  document.getElementById("unlockPassBtn")?.addEventListener("click", startDodoCheckout);
+
+  document.getElementById("deepHistoryBtn")?.addEventListener("click", () => {
+    const coreCar = state.cars.find((c) => c.id === state.coreCarId);
+    trackFunnelEvent("stage_3_waitlist_clicked", {
+      plan: "core_deep_audit_13_99",
+      carName: coreCar ? coreCar.name : "Core Pick Waitlist"
+    });
+    if (!isValidEmail(state.email)) {
+      setBanner("Core Deep Audit interest recorded! Save your email above so we notify you first.");
+      jumpToSection("profileCard");
+    } else {
+      setBanner(`You're on the priority Core Deep Audit waitlist (${state.email})!`);
+    }
+  });
+
+  document.getElementById("copyJourneyCardBtn")?.addEventListener("click", async () => {
+    const shortlisted = state.cars.filter((c) => c.shortlisted).length;
+    const vinChecked = state.cars.filter((c) => Boolean(c.vin)).length;
+    const coreCar = state.cars.find((c) => c.id === state.coreCarId);
+    const boughtCar = state.cars.find((c) => c.id === state.boughtCarId);
+
+    const summary = [
+      "My Used-Car Buying Plan — CarDesk US BuyerCheck",
+      `• Ads Screened (Free AI): ${state.carsChecked}`,
+      `• Shortlisted (Top 5): ${shortlisted}`,
+      `• Official U.S. NHTSA VIN Checks: ${vinChecked}`,
+      coreCar ? `• #1 Core Pick for PPI: ${coreCar.name}` : "• #1 Core Pick: Selecting now",
+      boughtCar ? `• Final Safe Buy: ${boughtCar.name} 🏆` : "• Status: Actively inspecting",
+      `Check any used car ad free: ${CONFIG.PUBLIC_SITE_URL}`
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(summary);
+      setBanner("Journey summary copied! Paste it into WhatsApp, X, Reddit, or iMessage.");
+    } catch {
+      setBanner("Clipboard blocked — copy manually from your browser.");
+    }
+  });
+
+  /* PWA Install Button */
+  const installBtn = document.getElementById("installBtn");
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+  });
+
+  installBtn?.addEventListener("click", async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+    } else {
+      setBanner("To install: use your browser menu → 'Add to Home Screen' or 'Install App'.");
+    }
+  });
+}
+
+function initApp() {
+  populateStates();
+  handlePaymentReturnParam();
+  bindEvents();
+  renderAll();
+  initGoogleAuth();
+  trackFunnelEvent("stage_0_visit");
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initApp);
